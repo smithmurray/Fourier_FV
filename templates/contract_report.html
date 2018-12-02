@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block title %}Flow Vis{% endblock %}
+
+{% block navhead %}Logged in: {{  session["UserName"]  }}{% endblock %}
+
+{% block href %}"{{  url_for('users_file.dashboard', org_name=session['OrgName'])  }}"{% endblock %}
+
+{% block navbody %}
+    <a class="text-white" href="/Logout">Logout</a>
+{% endblock %}
+
+{% block body %}
+
+<div class = "col-md-12">
+	<center>
+	    <h2 style="margin-top:10px;">Contract Reports</h2>
+	    <a class="btn btn-outline-success" href="{{  url_for('users_file.dashboard', org_name=session['OrgName'])  }}">Back to main menu <i class="fa fa-arrow-left"></i></a>
+	    <br>
+	    <a style="padding-top:10px;" href="{{ url_for('static', filename='reports/DynamicReport.xlsx') }}" download>Download Contract Report</a>
+	</center>
+
+	<table id="example" class="table compact table-bordered" style="width:100%">
+    <thead class="bg-5">
+      <tr class="text-center">
+		<th>Contract Reference</th>
+        <th>Contract Name</th>
+		<th>Contract Due Date</th>
+		<th>Line Reference</th>
+		<th>Aluminium System</th>
+		<th>Rand Value</th>
+		<th>Item Status</th>
+      </tr>
+      <tr class="text-center" style="border-top:none;">
+		<td>Contract Reference</td>
+        <td>Contract Name</td>
+        <td>Contract Due Date</td>
+        <td>Line Reference</td>
+		<td>Aluminium System</td>
+		<td>Rand Value</td>
+		<td>Item Status</td>
+      </tr>
+    </thead>
+    <tbody class="text-center">
+        {% for i in report_proc %}
+
+        <tr data-toggle="modal" data-id="{{  i.LineReferenceNumber  }}" data-target="#report{{  i.LineReferenceNumber  }}">
+            <td>{{  i.ContractReference  }}</td>
+            <td>{{  i.Description  }}</td>
+            <td>{{  i.DueDate  }}</td>
+            <td>{{  i.LineReferenceNumber  }}</td>
+            <td>{{  i.AluminiumSystem  }}</td>
+            <td>R{{  i.Value  }}</td>
+            <td>{{  i.Status  }}</td>
+        </tr>
+
+        {% endfor %}
+    </tbody>
+    </table>
+</div>
+
+{% for i in report_proc %}
+<!-- Add Modal -->
+<div class="modal fade" id="report{{  i.LineReferenceNumber  }}" tabindex="-1" role="dialog" aria-labelledby="orderModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <form action="{{  url_for('contracts_file.worker', org_name=session['OrgName'], user_id=session['UserId'])  }}" method="POST">
+      <div class="modal-header bg-5">
+        <h5 class="modal-title" id="exampleModalLabel">{{  i.LineReferenceNumber  }} Contract Report</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+                {% for j in activities_data %}
+                <p style="marign:0px;padding:0px;">{{  j.Status  }}: {% if i[loop.index + 8] is not none %}<span style="text-align:right;" class="item_history">{{  i[loop.index + 8].strftime('%Y-%m-%d')  }}</span>{% else %}<span style="color:red;" class="item_history">No Date</span>{% endif %}</p>
+                {% endfor %}
+        </div>
+  </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+<script>
+$(document).ready(function() {
+    $('#example thead td').each( function () {
+        var title = $('#example thead th').eq( $(this).index() ).text();
+        $(this).html( '<input class="searching" type="text" placeholder=" Search..." />' );
+    } );
+
+    var table = $('#example').DataTable({"ordering": false, "fixedHeader": {header: true}, "pageLength": 50, "aaSorting": []});
+
+    table.columns().eq( 0 ).each( function ( colIdx ) {
+        $( 'input', table.column( colIdx ).header() ).on( 'keyup change', function () {
+            table
+                .column( colIdx )
+                .search( this.value )
+                .draw();
+        } );
+    } );
+    // $('#example2').DataTable({searching: false, "pageLength": 50, "aaSorting": []});
+} );
+</script>
+
+<!--p>
+{% for i in report_proc %}
+<script>
+$(function(){
+    $('#orderModal{{  i.LineReferenceNumber  }}').modal({
+        keyboard: true,
+        backdrop: "static",
+        show:false,
+    })
+});
+</script>
+{% endfor %}
+<p-->
+{% endblock %}

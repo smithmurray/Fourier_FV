@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}Flow Vis{% endblock %}
+
+{% block navhead %}Flow Vis{% endblock %}
+
+{% block body %}
+{% if Error|length > 1 %}
+<div class="danger text-center">
+    <p>{{  Error  }}</p>
+</div>
+{% endif %}
+
+<!--script
+    type="text/javascript"
+    src="http://www.appsgeyser.com/js/appsgeyser_redirect_page.js"></script>
+</div>
+<script type="text/javascript">
+    appsgeyserRedirect.init({
+        url: "http://app.appsgeyser.com/7948168/Flow%20Vis",
+        alertFrequency: "once"
+    }).redirectPage();
+</script-->
+
+<div class="login-form">
+    <center>
+    <div class="container col-md-10 offset-md-1">
+            <h2 style="margin-bottom:20px; margin-top:80px;">Enter your Organisation details:</h2>
+            <form class="dsadsa" action="{{  url_for('users_file.login_org')  }}" method="POST">
+                <div class="form-group">
+                    <!--label>Organisation Email</label-->
+                    <input placeholder="Organisation Email" class="form-control ologin" type="email" required name="OrgEmail" id="OrgEmail"/><br>
+                    <!--label>Organisation Password</label-->
+                    <input placeholder="Organisation Password" class="form-control ologin" type="password" required name="OrgPswd" id="OrgPswd"/>
+                </div><br>
+                <input type="submit" class="btn btn-outline-success no-show" value="Login">
+            </form>
+
+    </div>
+    </center>
+</div>
+
+
+{% endblock %}

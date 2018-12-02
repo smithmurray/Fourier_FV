@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block title %}Flow Vis{% endblock %}
+
+{% block navhead %}Logged in: {{  session["UserName"]  }}{% endblock %}
+
+{% block href %}"{{  url_for('users_file.dashboard', org_name=session["OrgName"])  }}"{% endblock %}
+
+{% block css %}
+
+{% endblock %}
+
+{% block navbody %}
+    <a class="text-white" href="/Logout">Logout</a>
+{% endblock %}
+
+{% block body %}
+{% if Error|length > 1 %}
+<div class="danger text-center">
+    <p>{{  Error  }}</p>
+</div>
+{% endif %}
+
+<div class = "col-md-12">
+	<center>
+	    <h2 style="margin-top:10px;">{{  items_history_name[1]  }} {{  items_history_name[2]  }} History:</h2><br>
+	    <a class="btn btn-outline-success" href="{{  url_for('contracts_file.manage_contracts', org_name=session['OrgName'])  }}">Back to contracts <i class="fa fa-arrow-left"></i></a>
+	    <a style="width:250px;" class="btn btn-outline-success" href="{{  url_for('contracts_file.manage_contract_items', org_name=session['OrgName'], contract_name=contract_name)  }}">Back to contract items <i class="fa fa-arrow-left"></i></a>
+	    <a class="btn btn-outline-success" href="{{  url_for('users_file.dashboard', org_name=session['OrgName'])  }}">Back to main menu <i class="fa fa-arrow-left"></i></a>
+	</center>
+</div>
+
+<div class = "col-md-12">
+<table id="example" class="table compact table-bordered" style="width:100%">
+    <thead class="bg-5">
+      <tr class="text-center">
+		<th>Status</th>
+        <th>User Name</th>
+		<th>Date</th>
+      </tr>
+      <tr class="searchin text-center" style="border-top:none;">
+		<td>Status</td>
+        <td>User Name</td>
+		<td>Date</td>
+      </tr>
+    </thead>
+    <tbody class="text-center">
+        {% for i in items_history %}
+        {% if loop.first == True %}
+        <tr>
+			<td>{{  i.Status  }}</td>
+			<td>{{  i.UserName  }}</td>
+			<td>{{  i.Timestamped.strftime('%Y-%m-%d %H:%M:%S')  }}</td>
+        </tr>
+        {% else %}
+            {% if i.Status != items_history[loop.index0 - 1].Status %}
+            <tr>
+    			<td>{{  i.Status  }}</td>
+    			<td>{{  i.UserName  }}</td>
+    			<td>{{  i.Timestamped.strftime('%Y-%m-%d %H:%M:%S')  }}</td>
+            </tr>
+            {% endif %}
+        {% endif %}
+        {% endfor %}
+    </tbody>
+    </table>
+    </div>
+
+<script>
+$(document).ready(function() {
+    $('#example thead td').each( function () {
+        var title = $('#example thead th').eq( $(this).index() ).text();
+        $(this).html( '<input class="searching" type="text" placeholder=" Search..." />' );
+    } );
+
+    var table = $('#example').DataTable({"ordering": false, "pageLength": 50, "aaSorting": []});
+
+    table.columns().eq( 0 ).each( function ( colIdx ) {
+        $( 'input', table.column( colIdx ).header() ).on( 'keyup change', function () {
+            table
+                .column( colIdx )
+                .search( this.value )
+                .draw();
+        } );
+    } );
+    // $('#example2').DataTable({searching: false, "pageLength": 50, "aaSorting": []});
+} );
+</script>
+{% endblock %}

@@ -1,0 +1,216 @@
+{% extends 'base.html' %}
+
+{% block title %}Flow Vis{% endblock %}
+
+{% block navhead %}Logged in: {{  session["UserName"]  }}{% endblock %}
+
+{% block href %}"{{  url_for('users_file.dashboard', org_name=session["OrgName"])  }}"{% endblock %}
+
+{% block css %}
+
+{% endblock %}
+
+{% block navbody %}
+    <a class="text-white" href="/Logout">Logout</a>
+{% endblock %}
+
+{% block body %}
+{% if Error|length > 1 %}
+<div class="danger text-center">
+    <p>{{  Error  }}</p>
+</div>
+{% endif %}
+
+<div class = "col-md-12">
+	<center>
+	    <h2 style="margin-top:10px;">{{  contract_data[1]  }} Items</h2>
+
+	    <p>contract reference: <span class="item_history">{{  contract_data[3]  }}</span></p>
+        <p class="pad">due date: <span class="item_history">{{  contract_data[2]  }}</span></p>
+
+	    {% if session["RoleId"] > 2 %}
+	    <a class="btn btn-outline-success" data-toggle="modal" data-target="#AddContract">Add a contract item <i class="fa fa-plus"></i></a>
+	    <a class="btn btn-outline-success" href="{{  url_for('contracts_file.manage_contracts', org_name=session['OrgName'])  }}">Back to contracts <i class="fa fa-arrow-left"></i></a>
+	    <a class="btn btn-outline-success" href="{{  url_for('users_file.dashboard', org_name=session['OrgName'])  }}">Back to main menu <i class="fa fa-arrow-left"></i></a>
+	    {% else %}
+	    <a class="btn btn-outline-success" href="{{  url_for('contracts_file.manage_contracts', org_name=session['OrgName'])  }}">Back to contracts <i class="fa fa-arrow-left"></i></a>
+	    <a class="btn btn-outline-success" href="{{  url_for('users_file.dashboard', org_name=session['OrgName'])  }}">Back to main menu <i class="fa fa-arrow-left"></i></a>
+	    {% endif %}
+	</center>
+
+
+    <table id="example" class="table compact table-bordered" style="width:100%">
+    <thead class="bg-5">
+      <tr class="text-center">
+		<th>Line Reference</th>
+		<th>Aluminium System</th>
+		<th>Rand Value</th>
+		<th>Item Status</th>
+		<th>Assigned User</th>
+		<th style="width:5%;">Edit</th>
+		<th style="width:5%;">History</th>
+      </tr>
+      <tr class="searchin text-center" style="border-top:none;">
+		<td>Line Reference</td>
+		<td>Aluminium System</td>
+		<td>Rand Value</td>
+		<td>Item Status</td>
+		<td>Assigned User</td>
+        <th></th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody class="text-center">
+        {% for i in report_proc %}
+        {% if i.ContractReference == contract_ref[0] %}
+        <tr>
+			<td>{{  i.LineReferenceNumber  }}</td>
+			<td>{{  i.AluminiumSystem  }}</td>
+			<td>R{{  i.Value  }}</td>
+			<td>{% if i.Status is not none %}{{  i.Status  }}{% else %}{% endif %}</td>
+			<td>{% if i.UserName is not none %}{{  i.UserName  }}{% else %}{% endif %}</td>
+			<td style="text-align:center;"><a class="" data-toggle="modal" data-target="#exampleModal{{  i.ContractItemId  }}"><i class="fa fa-edit change"></i></a></td>
+            <form action="{{  url_for('contracts_file.manage_contract_items', org_name=session['OrgName'], contract_name=contract_name)  }}" method="POST">
+            <input name="ContractItemId" type="hidden" value="{{  i.ContractItemId  }}">
+            <td style="text-align:center;"><input name="ContractItems" type="submit" class="btn btn-primary no-show" value="View"></td>
+            </form>
+        </tr>
+        {% endif %}
+        {% endfor %}
+    </tbody>
+    </table>
+ </div>
+
+
+
+
+
+<!-- Add Modal -->
+<div class="modal fade" id="AddContract" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+    <form action="{{  url_for('contracts_file.manage_contract_items', org_name=session['OrgName'], contract_name=contract_name)  }}" method="POST">
+      <div class="modal-header bg-5">
+        <h5 class="modal-title" id="exampleModalLabel">Add a contract item</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+            <center>
+            <label class="text-center">Item Reference:</label>
+            <input style="text-align:left;" class="form-control ologin" type="text" required name="IRef" id="IRef"/>
+            <label class="text-center">Aluminium System:</label>
+            <input style="text-align:left;" class="form-control ologin" type="text" required name="IName" id="IName"/>
+            <label class="text-center">Item Value:</label>
+            <input style="text-align:left;" step="0.01" min="0" class="form-control ologin" type="number" required name="IValue" id="IValue"/>
+            <label class="text-center">Item Status:</label>
+            <select class="form-control ologin" name="IStatus" id="IStatus" required>
+              <option value="" selected disabled></option>
+              {% for i in activities_data %}
+              <option value="{{  i.StatusId  }}">{{  i.Status  }}</option>
+              {% endfor %}
+            </select>
+            <label class="text-center">Assigned User:</label>
+            <select class="form-control ologin" name="IAUser" id="IAUser" required>
+              <option value="" selected disabled></option>
+              {% for i in contract_users %}
+              <option value="{{  i.UserId  }}">{{  i.UserName  }}</option>
+              {% endfor %}
+            </select>
+            </center>
+        </div>
+  </div>
+      <div class="modal-footer">
+        <input type="submit" class="btn btn-primary no-show" name="ContractItems" value="Add Contract Item">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+{% for i in report_proc %}
+{% if i.ContractReference == contract_ref[0] %}
+<div class="modal fade" id="exampleModal{{  i.ContractItemId  }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+    <form action="{{  url_for('contracts_file.manage_contract_items', org_name=session['OrgName'], contract_name=contract_name)  }}" method="POST">
+      <div class="modal-header bg-5">
+        <h5 class="modal-title" id="exampleModalLabel">Edit the contract item</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+            <center>
+            {% if session["RoleId"] > 2 %}
+            <label class="text-center">Item Reference:</label>
+            <input class="form-control ologin" type="text" required name="EIRef" id="EIRef" value="{{  i.LineReferenceNumber  }}"/>
+            <label class="text-center">Aluminium System:</label>
+            <input class="form-control ologin" type="text" required name="EIName" id="EIName" value="{{  i.AluminiumSystem  }}"/>
+            <label class="text-center">Item Value:</label>
+            <input class="form-control ologin" value="{{  i.Value  }}" type="text" required name="EIValue" id="IValue"/>
+            {% endif %}
+            <label class="text-center">Item Status:</label>
+            <input type="hidden" name="EIID" id="EIID" value="{{  i.ContractItemId  }}"/>
+            <select class="form-control ologin" name="EIStatus" id="EIStatus">
+              {% for j in activities_data %}
+              {% if i.Status == j.Status %}
+              <option value="{{  j.StatusId  }}" selected>{{  j.Status  }}</option>
+              {% else %}
+              <option value="{{  j.StatusId  }}">{{  j.Status  }}</option>
+              {% endif %}
+              {% endfor %}
+            </select>
+            <label class="text-center">Assigned User:</label>
+            <select class="form-control ologin" name="EIAUser" id="EIAUser">
+              <option value="{{  i.AssignedUserId  }}" selected>{{  i.UserName  }}</option>
+
+
+              {% for j in contract_users %}
+              {% if i.UserName != j.UserName %}
+              <option value="{{  j.UserId  }}">{{  j.UserName  }}</option>
+              {% endif %}
+              {% endfor %}
+            </select>
+            </center>
+        </div>
+  </div>
+      <div class="modal-footer">
+        <input type="submit" class="btn btn-primary no-show" name="ContractItems" value="Save Contract Item">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endfor %}
+
+<script>
+$(document).ready(function() {
+    $('#example thead td').each( function () {
+        var title = $('#example thead th').eq( $(this).index() ).text();
+        $(this).html( '<input class="searching" type="text" placeholder=" Search..." />' );
+    } );
+
+    var table = $('#example').DataTable({"ordering": false, "fixedHeader": {header: true}, "pageLength": 50, "aaSorting": []});
+
+    table.columns().eq( 0 ).each( function ( colIdx ) {
+        $( 'input', table.column( colIdx ).header() ).on( 'keyup change', function () {
+            table
+                .column( colIdx )
+                .search( this.value )
+                .draw();
+        } );
+    } );
+    // $('#example2').DataTable({searching: false, "pageLength": 50, "aaSorting": []});
+} );
+</script>
+
+
+{% endblock %}

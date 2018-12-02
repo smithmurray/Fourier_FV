@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+
+{% block title %}Worker{% endblock %}
+
+{% block navhead %}Logged in: {{  session["UserName"]  }}{% endblock %}
+
+{% block href %}{{  url_for('users_file.dashboard', org_name=session['OrgName'])  }}{% endblock %}
+
+{% block navbody %}
+    <a class="text-white" href="/Logout">Logout</a>
+{% endblock %}
+
+{% block body %}
+{% if Error|length > 1 %}
+<div class="danger text-center">
+    <p>{{  Error  }}</p>
+</div>
+{% endif %}
+<div class = "col-md-12">
+    <center>
+        <h2 style="margin-top:10px;">Contract Lines</h2>
+        {% if session["RoleId"] > 1 %}
+	    <a class="btn btn-outline-success" href="{{  url_for('users_file.dashboard', org_name=session['OrgName'])  }}">Back to main menu <i class="fa fa-arrow-left"></i></a>
+
+
+	{% endif %}
+</center>
+	<table id="example2" class="table compact table-bordered" style="width:100%">
+    <thead class="bg-5">
+      <tr class="text-center" style="border-bottom:none;">
+		<th>Reference</th>
+        <th>Contract</th>
+        <th>Line Number</th>
+		<th>Aluminium System</th>
+		<th>Status</th>
+      </tr>
+      <tr class="text-center" style="border-top:none;">
+		<td>Reference</td>
+        <td>Contract</td>
+        <td>Line Number</td>
+		<td>Aluminium System</td>
+		<td>Status</td>
+      </tr>
+    </thead>
+    <tbody id="example">
+        {% for i in fast_assign %}
+            <tr class='clickable-row1' data-toggle="modal" data-id="{{  i.ContractItemId  }}" data-asid="{{  i.ActivityStatusId  }}" data-actend="{{  i.isActivityEnd  }}" data-target="#orderModal" {% if session['UserId'] == i.AssignedUserId %}style="background-color:#008080; color:#fff; opacity:0.7;"{% endif %}>
+				<td id="ContractReference{{  i.ContractItemId  }}">{{  i.ContractReference  }}</td>
+				<td id="Contract{{  i.ContractItemId  }}">{{  i.Contract  }}</td>
+				<td id="LineReferenceNumber{{  i.ContractItemId  }}">{{  i.LineReferenceNumber  }}</td>
+				<td id="Description{{  i.ContractItemId  }}">{{  i.Description  }}</td>
+				<td id="Status{{  i.ContractItemId  }}">{{  i.Status  }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+  </table>
+
+
+<!-- Add Modal -->
+<div class="modal fade" id="orderModal" tabindex="-1" role="dialog" aria-labelledby="orderModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <form class="form-horizontal" action="{{  url_for('contracts_file.worker', org_name=session['OrgName'], user_id=session['UserId'])  }}" method="POST">
+      <div class="modal-body">
+        <div class="form-group">
+            <center>
+            <input type="hidden" id="CIIE" name="CIIE">
+            <input type="hidden" id="CIIS"  name="CIIS">
+            <input type="hidden" id="CIIA"  name="CIIA">
+
+            <div class="container">
+                <div class="row  ">
+                    <div class="col-sm-4" text-align="left">
+        	            <p id="contr" class="items_history"></p>
+                    </div>
+                    <div class="col-sm-4" text-align="center">
+                        <p id = "LRN" class="items_history"></p>
+                    </div>
+                    <div class="col-sm-4" text-align="right">
+                        <p id = "Dsc" class="items_history"></p>
+                    </div>
+                </div>
+            </div>
+            <div id="showwhenstart" style="display:none;">
+            <p>Current activity '<b id="ActStatusJQ"></b>' needs to be completed</p>
+            </div>
+            <div id="showwhencomplete" class="container" style="display:none;">
+                <div class="row">
+            {% for j in base_activities_data %}
+                    <div class="col-sm-4">
+                        <input type="submit" class="btn btn-warning no-show" style="border:#{{  j.BgColor  }} !important; background-color:#{{  j.BgColor  }} !important;" name="UpdateStatus" {% if j.Abbreviation is not none %}value="{{  j.Abbreviation  }}"{% else %}value="{{  j.Activity  }}"{% endif %}>
+                    </div>
+            {% endfor %}
+                </div>
+            </div>
+            </center>
+        </div>
+  </div>
+      <div class="modal-footer">
+        <input type="submit" class="btn btn-primary no-show" id = "CompAct" style="display:none;" name="UpdateStatus" value="Complete Activity">
+        <input type="submit" class="btn btn-danger no-show" name="UpdateStatus" value="Cancel Item">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+ </div>
+ </div>
+<br>
+<script>
+$('#orderModal').on('show.bs.modal', function (event) {
+    var button = $(event.relatedTarget);
+    var ConID = button.data('id');
+    var ASID = button.data('asid');
+    var ActEnd = button.data('actend');
+    var c = $("#Contract" + ConID).text();
+    var lrn = $("#LineReferenceNumber" + ConID).text();
+    var dscn = $("#Description" + ConID).text();
+    var stat = $("#Status" + ConID).text();
+
+    var modal = $(this);
+    modal.find('#CIIE').val(ConID);
+    modal.find('#CIIS').val(ASID);
+    modal.find('#CIIA').val(ActEnd);
+    modal.find('#contr').text(c);
+    modal.find('#LRN').text(lrn);
+    modal.find('#Dsc').text(dscn);
+    modal.find('#ActStatusJQ').text(stat);
+
+    if (ActEnd == 'True' || stat == 'Cancelled') {
+        $('#showwhencomplete').show();
+        $('#showwhenstart').hide();
+        $('#CompAct').hide();
+    } else {
+        $('#showwhenstart').show();
+        $('#CompAct').show();
+        $('#showwhencomplete').hide();
+    }
+
+
+});
+</script>
+
+<script>
+$(document).ready(function() {
+    $('#example2 thead td').each( function () {
+        var title = $('#example2 thead th').eq( $(this).index() ).text();
+        $(this).html( '<input class="searching" type="text" placeholder=" Search..." />' );
+    } );
+
+    var table = $('#example2').DataTable({"ordering": false, "fixedHeader": {header: true}, "pageLength": 50, "aaSorting": []});
+
+    table.columns().eq( 0 ).each( function ( colIdx ) {
+        $( 'input', table.column( colIdx ).header() ).on( 'keyup change', function () {
+            table
+                .column( colIdx )
+                .search( this.value )
+                .draw();
+        } );
+    } );
+    // $('#example2').DataTable({searching: false, "pageLength": 50, "aaSorting": []});
+} );
+</script>
+
+
+{% endblock %}
+

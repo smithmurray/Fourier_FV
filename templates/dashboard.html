@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}Flow Vis{% endblock %}
+
+{% block navhead %}Logged in: {{  session["UserName"]  }}{% endblock %}
+
+{% block href %}"{{  url_for('users_file.dashboard', org_name=session['OrgName'])  }}"{% endblock %}
+
+{% block navbody %}
+    <a class="text-white" href="/Logout">Logout</a>
+{% endblock %}
+
+{% block body %}
+{% if Error|length > 1 %}
+<div class="danger text-center">
+    <p>{{  Error  }}</p>
+</div>
+{% endif %}
+
+<div class = "col-md-12">
+	<center>
+	    <br>
+	    <h2>Main Menu</h2>
+	    <br>
+	</center>
+</div>
+
+<div class="container text-center">
+	<div class="row  ">
+        <div class=" col-sm-6 text-center">
+		    <div class="card  bg-5">
+                <a href="{{  url_for('contracts_file.manage_contracts', org_name=session['OrgName'])  }}"><i style="width:100%; font-size:200px; color:#808080; padding-top:30px;" class="fa fa-file"></i></a><br>
+                <div class="container">
+                    <a class="bg-2" href="{{  url_for('contracts_file.manage_contracts', org_name=session['OrgName'])  }}"><h3 style="color:#0e1111;">Contracts</h3></a>
+                    <br>
+                </div>
+            </div>
+        </div>
+        <div class=" col-sm-6 text-center">
+		    <div class="card  bg-5">
+                <a href="{{  url_for('contracts_file.worker', org_name=session['OrgName'], user_id=session['UserId'])  }}"><i style="width:100%; font-size:200px; color:#808080; padding-top:30px;" class="fa fa-folder-open"></i></a><br>
+                <div class="container">
+                    <a class="bg-2" href="{{  url_for('contracts_file.worker', org_name=session['OrgName'], user_id=session['UserId'])  }}"><h3 style="color:#0e1111;">Contract Items</h3></a>
+                    <br>
+                </div>
+            </div>
+		</div>
+	</div>
+</div>
+{% if session["RoleId"] > 2 %}
+<div class="container text-center">
+	<div class="row">
+
+		<div class=" col-sm-6 text-center">
+		    <div class="card  bg-5">
+                <a href="{{  url_for('report_file.contract_report', org_name=session['OrgName'])  }}"><i style="width:100%; font-size:200px; color:#808080; padding-top:30px;" class="fa fa-area-chart"></i></a><br>
+                <div class="container">
+                    <a class="bg-2" href="{{  url_for('report_file.contract_report', org_name=session['OrgName'])  }}"><h3 style="color:#0e1111;">Reports</h3></a>
+                    <br>
+                </div>
+            </div>
+		</div>
+        <div class=" col-sm-6 text-center">
+		    <div class="card  bg-5">
+                <a href="{{  url_for('users_file.manage_users', org_name=session['OrgName'])  }}"><i style="width:100%; font-size:200px; color:#808080; padding-top:30px;" class="fa fa-user"></i></a><br>
+                <div class="container">
+                    <a class="bg-2" href="{{  url_for('users_file.manage_users', org_name=session['OrgName'])  }}"><h3 style="color:#0e1111;">Users</h3></a>
+                    <br>
+                </div>
+            </div>
+		</div>
+
+	</div>
+</div>
+{% endif %}
+{% if session["RoleId"] == 4 %}
+<div class = "col-md-12">
+    <br><br>
+	<center>
+	    <a href="{{  url_for('users_file.logout_org')  }}" class="btn btn-outline-success">Logout Organisation</a>
+	</center>
+	<br><br>
+</div>
+{% endif %}
+{% endblock %}

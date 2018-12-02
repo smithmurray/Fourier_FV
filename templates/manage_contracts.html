@@ -1,0 +1,274 @@
+{% extends 'base.html' %}
+
+{% block title %}Flow Vis{% endblock %}
+
+{% block navhead %}Logged in: {{  session["UserName"]  }}{% endblock %}
+
+{% block href %}{{  url_for('users_file.dashboard', org_name=session["OrgName"])  }}{% endblock %}
+
+{% block css %}
+
+{% endblock %}
+
+{% block navbody %}
+    <a class="text-white" href="/Logout">Logout</a>
+{% endblock %}
+
+{% block body %}
+{% if Error|length > 1 %}
+<div class="danger text-center">
+    <p>{{  Error  }}</p>
+</div>
+{% endif %}
+
+<div class = "col-md-12">
+	<center>
+	    <h2 style="margin-top:10px;">Contracts</h2>
+	    {% if session["RoleId"] > 2 %}
+	    <a class="btn btn-outline-success" data-toggle="modal" data-target="#AddContract">Add a contract <i class="fa fa-plus"></i></a>
+	    <a href="{{ url_for('static', filename='reports/TemplateItems.xlsx') }}" download>Download Contract Items template</a>
+	    <a class="btn btn-outline-success" href="{{  url_for('users_file.dashboard', org_name=session['OrgName'])  }}">Back to main menu <i class="fa fa-arrow-left"></i></a>
+
+	    {% else %}
+	    <a class="btn btn-outline-success" href="{{  url_for('users_file.dashboard', org_name=session['OrgName'])  }}">Back to main menu <i class="fa fa-arrow-left"></i></a>
+	    {% endif %}
+	</center>
+
+
+    <table id="example" class="table compact table-bordered" style="width:100%">
+    <thead class="bg-5">
+      <tr class="text-center">
+		<th>Contract Reference</th>
+        <th>Contract Name</th>
+		<th>Contract Value</th>
+		<th>Contract Status</th>
+		<th>Contract Manager</th>
+		<th>Due Date</th>
+		<th>Days left</th>
+		{% if session["RoleId"] > 2 %}
+		<th>Edit Contract</th>
+		<th>Items Import</th>
+		{% endif %}
+      </tr>
+      <tr class="searchin text-center" style="border-top:none;">
+		<td>Contract Reference</td>
+        <td>Contract Name</td>
+		<td>Contract Value</td>
+		<td>Contract Status</td>
+		<td>Contract Manager</td>
+		<td>Due Date</td>
+		<td>Days left</td>
+		{% if session["RoleId"] > 2 %}
+		<th></th>
+		<th></th>
+		{% endif %}
+      </tr>
+    </thead>
+    <tbody class="text-center">
+        {% for i in sp %}
+
+        <tr class='clickable-row'>
+			<td><a href="{{  url_for('contracts_file.manage_contract_items', org_name=session['OrgName'], contract_name=i.Description)  }}"><div class="change">{{  i.ContractReference  }}</div></a></td>
+			<td><a href="{{  url_for('contracts_file.manage_contract_items', org_name=session['OrgName'], contract_name=i.Description)  }}"><div class="change">{{  i.Description  }}</div></a></td>
+			<td>{% if i.Total is not none %}R{{  i.Total  }}{% else %}R0{% endif %}</td>
+			<td>{% if i.PercentageCompleted is not none %}{{  i.PercentageCompleted|round  }}%{% else %}0%{% endif %}</td>
+			<td>{{  i.ContractManager  }}</td>
+			<td>{{  i.DueDate  }}</td>
+			<td {% if i.DaysLeft < 0 %}style="color:red"{% endif %}>{{  i.DaysLeft  }}</td>
+			{% if session["RoleId"] > 2 %}
+			<td style="text-align:center;"><a class="clickable" data-toggle="modal" data-target="#exampleModal{{  i.ContractId  }}"><i class="fa fa-edit change"></i></a></td>
+			<form method="POST" enctype=multipart/form-data action="{{  url_for('contracts_file.manage_contracts', org_name=session['OrgName'])  }}">
+			<td style="text-align:center;">
+			    {% if i.WithItems == 0 %}
+			    <label for="upload-file{{  i.ContractId  }}"><a><i class="fa fa-file change"></i> Browse...</a></label>
+			    <input value="{{  i.Description  }}" name="ConName" type="hidden"/>
+			    <input value="{{  i.ContractId  }}" name="ConId" type="hidden"/>
+			    <input name="file" type="file" id="upload-file{{  i.ContractId  }}" />
+			    <input type=submit id="submit-file{{  i.ContractId  }}" class="btn btn-primary" name="AddContracts" value="Upload File">
+		        {% else %}
+		        <i class="fa fa-check"></i>
+		        {% endif %}
+		    </td>
+			</form>
+			{% endif %}
+        </tr>
+
+        {% endfor %}
+    </tbody>
+    </table>
+
+ </div>
+
+{% if session["RoleId"] > 2 %}
+<!-- Add Modal -->
+<div class="modal fade" id="AddContract" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+    <form action="{{  url_for('contracts_file.manage_contracts', org_name=session['OrgName'])  }}" method="POST">
+      <div class="modal-header bg-5">
+        <h5 class="modal-title" id="exampleModalLabel">Add a contract</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+            <center>
+            <label class="text-center">Contract Reference:</label>
+            <input style="text-align:left;" class="form-control ologin" type="text" required name="CRef" id="CRef"/>
+            <label class="text-center">Contract Name:</label>
+            <input style="text-align:left;" class="form-control ologin" type="text" required name="CName" id="CName"/>
+            <label class="text-center">Contract Status:</label>
+            <select class="form-control ologin" name="CStatus" id="CStatus">
+              <option value="" selected disabled></option>
+              {% for i in activities_data %}
+              <option value="{{  i.StatusId  }}">{{  i.Status  }}</option>
+              {% endfor %}
+            </select>
+            <label class="text-center">Contract Manager:</label>
+            <select class="form-control ologin" name="CMan" id="CMan">
+              <option value="" selected disabled></option>
+              {% for i in contract_managers %}
+              <option value="{{  i.UserId  }}">{{  i.UserName  }}</option>
+              {% endfor %}
+            </select>
+            <label class="text-center">Due Date:</label>
+            <input min="1899-01-01" style="text-align:left;" class="form-control ologin" type="date" required name="CDate" id="CDate"/>
+            <label class="text-center">Notes:</label>
+            <textarea style="text-align:left; height:100px;" class="form-control ologin" name="CNotes" id="CNotes"></textarea>
+            </center>
+        </div>
+  </div>
+      <div class="modal-footer">
+        <input type="submit" class="btn btn-primary no-show" name="AddContracts" value="Add Contract">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+{% for i in sp %}
+<div class="modal fade" id="exampleModal{{  i.ContractId  }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+    <form action="{{  url_for('contracts_file.manage_contracts', org_name=session['OrgName'])  }}" method="POST">
+      <div class="modal-header bg-5">
+        <h5 class="modal-title" id="exampleModalLabel">Edit the contract</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+            <center>
+            <label class="text-center">Contract Reference:</label>
+            <input type="hidden" name="ECID" id="ECID" value="{{  i.ContractId  }}"/>
+            <input class="form-control ologin" type="text" required name="ECRef" id="ECRef" value="{{  i.ContractReference  }}"/>
+            <label class="text-center">Contract Name:</label>
+            <input class="form-control ologin" type="text" required name="ECName" id="ECName" value="{{  i.Description  }}"/>
+            <label class="text-center">Contract Status:</label>
+            <select class="form-control ologin" name="ECStatus" id="ECStatus">
+              {% for j in activities_data %}
+              {% if i.Status == j.Status %}
+              <option value="{{  j.StatusId  }}" selected>{{  j.Status  }}</option>
+              {% else %}
+              <option value="{{  j.StatusId  }}">{{  j.Status  }}</option>
+              {% endif %}
+              {% endfor %}
+            </select>
+            <label class="text-center">Contract Manager:</label>
+            <select class="form-control ologin" name="ECMan" id="ECMan">
+              {% for j in contract_managers %}
+              {% if i.ContractManager == j.UserName %}
+              <option value="{{  j.UserId  }}" selected>{{  j.UserName  }}</option>
+              {% else %}
+              <option value="{{  j.UserId  }}">{{  j.UserName  }}</option>
+              {% endif %}
+              {% endfor %}
+            </select>
+            <label class="text-center">Due Date:</label>
+            <input min="1899-01-01" style="text-align:left;" class="form-control ologin" type="date" value="{{  i.DueDate  }}" required name="ECDate" id="ECDate"/>
+            <label class="text-center">Notes:</label>
+            <textarea style="text-align:left; height:100px;" class="form-control ologin" name="ECNotes" id="ECNotes">{{  i.Notes  }}</textarea>
+            </center>
+        </div>
+  </div>
+      <div class="modal-footer">
+        <input type="submit" class="btn btn-primary no-show" name="AddContracts" value="Save Contract">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+{% endif %}
+{% for i in sp %}
+<script>
+$(function(){
+   $("#submit-file{{  i.ContractId  }}").hide();
+   $("#upload-file{{  i.ContractId  }}").hide();
+   $("#upload-file{{  i.ContractId  }}").change(function(){
+        if ($("#upload-file{{  i.ContractId  }}").val() != ""){
+             $("#submit-file{{  i.ContractId  }}").show();
+        }
+        else{
+             $("#submit-file{{  i.ContractId  }}").hide();
+        }
+   });
+});
+
+</script>
+{% endfor %}
+
+<script>
+$(document).ready(function() {
+    $('#example thead td').each( function () {
+        var title = $('#example thead th').eq( $(this).index() ).text();
+        $(this).html( '<input class="searching" type="text" placeholder=" Search..." />' );
+    } );
+
+    var table = $('#example').DataTable({"ordering": false,"fixedHeader": {header: true},  "pageLength": 50, "aaSorting": []});
+
+    table.columns().eq( 0 ).each( function ( colIdx ) {
+        $( 'input', table.column( colIdx ).header() ).on( 'keyup change', function () {
+            table
+                .column( colIdx )
+                .search( this.value )
+                .draw();
+        } );
+    } );
+    // $('#example2').DataTable({searching: false, "pageLength": 50, "aaSorting": []});
+} );
+</script>
+
+<!--script>
+jQuery(document).ready(function($) {
+    $(".clickable-row").click(function() {
+        window.location = $(this).data("href");
+    });
+});
+</script-->
+
+<script>
+var today = new Date();
+var dd = today.getDate();
+var mm = today.getMonth()+1; //January is 0!
+var yyyy = today.getFullYear();
+ if(dd<10){
+        dd='0'+dd
+    }
+    if(mm<10){
+        mm='0'+mm
+    }
+
+today = yyyy+'-'+mm+'-'+dd;
+document.getElementById("CDate").setAttribute("min", today);
+document.getElementById("ECDate").setAttribute("min", today);
+</script>
+
+
+
+{% endblock %}

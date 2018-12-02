@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block title %}Contract Lines{% endblock %}
+
+{% block navhead %}Serengeti{% endblock %}
+
+{% block navbody %}
+    <a class="text-white" href="/Logout">Logout</a>
+{% endblock %}
+
+{% block body %}
+<div class = "col-md-10 offset-md-1">
+    <br><br>
+	<center>
+	    <h2>Assigned Contract Lines</h2>
+	</center>
+	<br><br>
+	<table id="example" class="table table-striped table-bordered" style="width:100%">
+    <thead>
+      <tr>
+		<th>Quote Reference</th>
+        <th>Aluminium System</th>
+		<th>Current Phase</th>
+		<th>Start/Cancel</th>
+		<th>Mark as Complete</th>
+      </tr>
+    </thead>
+    <tbody>
+            <tr>
+				<td>D1</td>
+				<td>Cas30.5 Window</td>
+				<td>Cutting: Complete</td>
+				<td><button type="submit" class="btn btn-success">Start</button></td>
+				<td><button type="submit" class="btn btn-primary">Completed</button></td>
+            </tr>
+
+			<tr>
+				<td>D2</td>
+				<td>Cas30.5 Window</td>
+				<td>Cutting: In Progress</td>
+				<td><button type="submit" class="btn btn-warning">Cancel</button></td>
+				<td><button type="submit" class="btn btn-primary">Completed</button></td>
+            </tr>
+
+			<tr>
+				<td>B1</td>
+				<td>Vistafold</td>
+				<td>Entered Plant:</td>
+				<td><button type="submit" class="btn btn-success">Start</button></td>
+				<td><button type="submit" class="btn btn-primary">Completed</button></td>
+            </tr>
+
+
+    </tbody>
+  </table>
+
+ </div>
+<br><br>
+
+<script>
+$(document).ready(function() {
+    $('#example').DataTable();
+	$('#example2').DataTable();
+} );
+</script>
+{% endblock %}

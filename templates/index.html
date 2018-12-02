@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block title %}Flow Vis{% endblock %}
+
+{% block navhead %}Flow Vis{% endblock %}
+
+{% block href %}"{{  url_for('users_file.login', org_name=session['OrgName'])  }}"{% endblock %}
+
+{% block body %}
+{% if Error|length > 1 %}
+<div class="danger text-center">
+    <p>{{  Error  }}</p>
+</div>
+{% endif %}
+
+<div class="login-form">
+    <center>
+    <div class="container col-md-12" style="margin-top:80px">
+        <h2>Please enter your pin:</h2>
+        <br>
+        <form action="{{  url_for('users_file.login', org_name=session['OrgName'])  }}" method="POST">
+            <div class="form-group">
+                <input name="val1" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength="1" required type="number" class="login" autofocus/>
+                <input name="val2" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength="1" required type="number" class="login"/>
+                <input name="val3" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength="1" required type="number" class="login"/>
+                <input name="val4" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength="1" required type="number" class="login"/>
+            </div><br>
+            <input type="submit" class="btn btn-outline-success no-show" value="Login">
+        </form><br>
+    </div>
+    </center>
+</div>
+
+<!--footer class="container-fluid bg-5 text-center">
+	<div class = "col-md-10 mx-auto">
+	  <p>Developed by Fourier-E
+	  </p>
+	</div>
+</footer-->
+
+<script>
+var container = document.getElementsByClassName("container")[0];
+container.onkeyup = function(e) {
+    var target = e.srcElement || e.target;
+    var maxLength = parseInt(target.attributes["maxlength"].value, 10);
+    var myLength = target.value.length;
+    if (myLength >= maxLength) {
+        var next = target;
+        while (next = next.nextElementSibling) {
+            if (next == null)
+                break;
+            if (next.tagName.toLowerCase() === "input") {
+                next.focus();
+                break;
+            }
+        }
+    }
+    // Move to previous field if empty (user pressed backspace)
+    else if (myLength === 0) {
+        var previous = target;
+        while (previous = previous.previousElementSibling) {
+            if (previous == null)
+                break;
+            if (previous.tagName.toLowerCase() === "input") {
+                previous.focus();
+                break;
+            }
+        }
+    }
+}
+</script>
+{% endblock %}
