@@ -2,7 +2,7 @@
 
 {% block title %}Flow Vis{% endblock %}
 
-{% block navhead %}Logged in: {{  session["UserName"]  }}{% endblock %}
+
 
 {% block href %}"{{  url_for('users_file.dashboard', org_name=session["OrgName"])  }}"{% endblock %}
 
@@ -28,14 +28,12 @@
 	    <p>contract reference: <span class="item_history">{{  contract_data[3]  }}</span></p>
         <p class="pad">due date: <span class="item_history">{{  contract_data[2]  }}</span></p>
 
-	    {% if session["RoleId"] > 2 %}
+
 	    <a class="btn btn-outline-success" data-toggle="modal" data-target="#AddContract">Add a contract item <i class="fa fa-plus"></i></a>
 	    <a class="btn btn-outline-success" href="{{  url_for('contracts_file.manage_contracts', org_name=session['OrgName'])  }}">Back to contracts <i class="fa fa-arrow-left"></i></a>
 	    <a class="btn btn-outline-success" href="{{  url_for('users_file.dashboard', org_name=session['OrgName'])  }}">Back to main menu <i class="fa fa-arrow-left"></i></a>
-	    {% else %}
-	    <a class="btn btn-outline-success" href="{{  url_for('contracts_file.manage_contracts', org_name=session['OrgName'])  }}">Back to contracts <i class="fa fa-arrow-left"></i></a>
-	    <a class="btn btn-outline-success" href="{{  url_for('users_file.dashboard', org_name=session['OrgName'])  }}">Back to main menu <i class="fa fa-arrow-left"></i></a>
-	    {% endif %}
+
+
 	</center>
 
 
@@ -62,7 +60,7 @@
     </thead>
     <tbody class="text-center">
         {% for i in report_proc %}
-        {% if i.ContractReference == contract_ref[0] %}
+        {% if i.ContractReference == contract_data[3] %}
         <tr>
 			<td>{{  i.LineReferenceNumber  }}</td>
 			<td>{{  i.AluminiumSystem  }}</td>
@@ -100,20 +98,20 @@
         <div class="form-group">
             <center>
             <label class="text-center">Item Reference:</label>
-            <input style="text-align:left;" class="form-control ologin" type="text" required name="IRef" id="IRef"/>
+            <input style="text-align:left;" class="form-control qlogin" type="text" required name="IRef" id="IRef"/>
             <label class="text-center">Aluminium System:</label>
-            <input style="text-align:left;" class="form-control ologin" type="text" required name="IName" id="IName"/>
+            <input style="text-align:left;" class="form-control qlogin" type="text" required name="IName" id="IName"/>
             <label class="text-center">Item Value:</label>
-            <input style="text-align:left;" step="0.01" min="0" class="form-control ologin" type="number" required name="IValue" id="IValue"/>
+            <input style="text-align:left;" step="0.01" min="0" class="form-control qlogin" type="number" required name="IValue" id="IValue"/>
             <label class="text-center">Item Status:</label>
-            <select class="form-control ologin" name="IStatus" id="IStatus" required>
+            <select class="form-control qlogin" name="IStatus" id="IStatus" required>
               <option value="" selected disabled></option>
               {% for i in activities_data %}
               <option value="{{  i.StatusId  }}">{{  i.Status  }}</option>
               {% endfor %}
             </select>
             <label class="text-center">Assigned User:</label>
-            <select class="form-control ologin" name="IAUser" id="IAUser" required>
+            <select class="form-control qlogin" name="IAUser" id="IAUser" required>
               <option value="" selected disabled></option>
               {% for i in contract_users %}
               <option value="{{  i.UserId  }}">{{  i.UserName  }}</option>
@@ -133,7 +131,7 @@
 
 <!-- Edit Modal -->
 {% for i in report_proc %}
-{% if i.ContractReference == contract_ref[0] %}
+{% if i.ContractReference == contract_data[3] %}
 <div class="modal fade" id="exampleModal{{  i.ContractItemId  }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
@@ -147,17 +145,17 @@
       <div class="modal-body">
         <div class="form-group">
             <center>
-            {% if session["RoleId"] > 2 %}
+
             <label class="text-center">Item Reference:</label>
-            <input class="form-control ologin" type="text" required name="EIRef" id="EIRef" value="{{  i.LineReferenceNumber  }}"/>
+            <input class="form-control qlogin" type="text" required name="EIRef" id="EIRef" value="{{  i.LineReferenceNumber  }}"/>
             <label class="text-center">Aluminium System:</label>
-            <input class="form-control ologin" type="text" required name="EIName" id="EIName" value="{{  i.AluminiumSystem  }}"/>
+            <input class="form-control qlogin" type="text" required name="EIName" id="EIName" value="{{  i.AluminiumSystem  }}"/>
             <label class="text-center">Item Value:</label>
-            <input class="form-control ologin" value="{{  i.Value  }}" type="text" required name="EIValue" id="IValue"/>
-            {% endif %}
+            <input class="form-control qlogin" value="{{  i.Value  }}" type="text" required name="EIValue" id="IValue"/>
+
             <label class="text-center">Item Status:</label>
             <input type="hidden" name="EIID" id="EIID" value="{{  i.ContractItemId  }}"/>
-            <select class="form-control ologin" name="EIStatus" id="EIStatus">
+            <select class="form-control qlogin" name="EIStatus" id="EIStatus">
               {% for j in activities_data %}
               {% if i.Status == j.Status %}
               <option value="{{  j.StatusId  }}" selected>{{  j.Status  }}</option>
@@ -167,7 +165,7 @@
               {% endfor %}
             </select>
             <label class="text-center">Assigned User:</label>
-            <select class="form-control ologin" name="EIAUser" id="EIAUser">
+            <select class="form-control qlogin" name="EIAUser" id="EIAUser">
               <option value="{{  i.AssignedUserId  }}" selected>{{  i.UserName  }}</option>
 
 

@@ -2,7 +2,7 @@
 
 {% block title %}Flow Vis{% endblock %}
 
-{% block navhead %}Logged in: {{  session["UserName"]  }}{% endblock %}
+
 
 {% block href %}"{{  url_for('users_file.dashboard', org_name=session['OrgName'])  }}"{% endblock %}
 
@@ -44,7 +44,7 @@
     <tbody class="text-center">
         {% for i in report_proc %}
 
-        <tr data-toggle="modal" data-id="{{  i.LineReferenceNumber  }}" data-target="#report{{  i.LineReferenceNumber  }}">
+        <tr class="clickable-row1" data-toggle="modal" data-id="{{  i.LineReferenceNumber  }}" data-target="#report{{  i.LineReferenceNumber  }}">
             <td>{{  i.ContractReference  }}</td>
             <td>{{  i.Description  }}</td>
             <td>{{  i.DueDate  }}</td>
@@ -74,7 +74,7 @@
       <div class="modal-body">
         <div class="form-group">
                 {% for j in activities_data %}
-                <p style="marign:0px;padding:0px;">{{  j.Status  }}: {% if i[loop.index + 8] is not none %}<span style="text-align:right;" class="item_history">{{  i[loop.index + 8].strftime('%Y-%m-%d')  }}</span>{% else %}<span style="color:red;" class="item_history">No Date</span>{% endif %}</p>
+                <p style="marign:0px;padding:0px;">{{  j.Status  }}: {% if i[loop.index + 8] is not none %}<span style="text-align:right;" class="item_history">{{  i[loop.index + 8].strftime('%Y-%m-%d %H:%M:%S')  }}</span>{% else %}<span style="color:red;" class="item_history">No Date</span>{% endif %}</p>
                 {% endfor %}
         </div>
   </div>
@@ -86,6 +86,18 @@
   </div>
 </div>
 {% endfor %}
+
+<script>
+$('#EditRoles').on('show.bs.modal', function (event) {
+    var button = $(event.relatedTarget);
+    var recipient = button.data('whatever');
+    var rec = button.data('role');
+
+    var modal = $(this);
+    modal.find('.modal-title').text('Edit user ' + recipient + ' role' );
+    modal.find('.modal-body input').val(recipient);
+});
+</script>
 
 <script>
 $(document).ready(function() {

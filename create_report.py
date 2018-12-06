@@ -71,7 +71,7 @@ while data is not None:
     row +=1
     add_data(data,row)
     data = cursor.fetchone()
-    print(row)
+    #print(row)
 #worksheet1.autofilter('B2:AG39')
 worksheet1.autofilter(1,1,row,len(columns))
 workbook.close()

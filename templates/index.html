@@ -16,8 +16,10 @@
 <div class="login-form">
     <center>
     <div class="container col-md-12" style="margin-top:80px">
+
         <h2>Please enter your pin:</h2>
         <br>
+
         <form action="{{  url_for('users_file.login', org_name=session['OrgName'])  }}" method="POST">
             <div class="form-group">
                 <input name="val1" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength="1" required type="number" class="login" autofocus/>
@@ -27,6 +29,7 @@
             </div><br>
             <input type="submit" class="btn btn-outline-success no-show" value="Login">
         </form><br>
+
     </div>
     </center>
 </div>

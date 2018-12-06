@@ -11,7 +11,7 @@ app.jinja_env.add_extension('jinja2.ext.loopcontrols')
 @report_file.route('/<string:org_name>/ContractReport', methods=["POST", "GET"])
 def contract_report(org_name):
     if session.get('UserId'):
-        if session["RoleId"] == 4:
+        if session["RoleId"] > 2:
             contract_data = db.engine.execute("SELECT ContractReference FROM Contracts").first()
             create_report
             orgid=session["OrgId"]

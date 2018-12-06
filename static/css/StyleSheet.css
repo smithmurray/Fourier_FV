@@ -1,3 +1,19 @@
+@media all and (max-width: 900px) {
+    .picture {
+        font-size:50%;
+        }
+    nav {
+        display:none;
+    }
+
+}
+
+.picture {
+    font-size:150px;
+    color:#808080;
+    padding-top:30px;
+}
+
 .searching {
     border:1px solid #122854;
     outline: none;
@@ -10,6 +26,12 @@
 
     outline: 1px solid #122854;
     color:#122854;
+}
+.clickable-row:hover {
+    pointer:cursor
+    outline: 1px solid #122854;
+    color:#122854;
+
 }
 
 .change {
@@ -163,6 +185,7 @@ label {
     font-size: 48px;
     width:100px;
     height:100px;
+    border-radius:25px;
     text-align: center;
 
 }
@@ -182,10 +205,27 @@ label {
 .ologin {
     border: 2px solid #008080;
     color: #008080;
-    text-align: left;
+    border-radius:25px;
+    text-align: center;
 }
 
 .ologin:focus {
+    border: 2px solid #008080;
+    color: #008080;
+    font-style: arial;
+    outline: none;
+    box-shadow:none;
+    text-align: center;
+}
+
+.qlogin {
+    border: 2px solid #008080;
+    color: #008080;
+    border-radius:5px;
+    text-align: left;
+}
+
+.qlogin:focus {
     border: 2px solid #008080;
     color: #008080;
     font-style: arial;
@@ -244,24 +284,30 @@ label {
   margin-bottom: 20px;
 }
 
+.numbering {
+    padding:5px;
+    margin-bottom:10px;
+}
+
 .btn-warning {
     opacity:0.8;
-    width:110%;
+    width:100%;
     margin-bottom:10px;
     color:#fff !important;
     border-radius:25px;
     box-shadow:none !important;
-    padding-bottom:5px;
+    padding:5px;
 }
 
 .btn-warning:hover {
     opacity:1;
-    width:110%;
+    width:100%;
     margin-bottom:10px;
     color:#fff !important;
     border-radius:25px;
     box-shadow:none !important;
-    padding-bottom:5px;
+    padding:5px;
+
 }
 
 .btn-primary:focus, .btn-primary:hover, .btn-primary:active {
@@ -423,6 +469,7 @@ input::-webkit-inner-spin-button {
     width: 100%;
     margin-bottom:20px;
     border-radius:25px;
+    padding-bottom:10px;
 }
 
 .card:hover {

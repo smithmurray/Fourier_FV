@@ -2,7 +2,7 @@
 
 {% block title %}Worker{% endblock %}
 
-{% block navhead %}Logged in: {{  session["UserName"]  }}{% endblock %}
+{% block navhead %}Flow Vis{% endblock %}
 
 {% block href %}{{  url_for('users_file.dashboard', org_name=session['OrgName'])  }}{% endblock %}
 
@@ -25,32 +25,45 @@
 
 	{% endif %}
 </center>
-	<table id="example2" class="table compact table-bordered" style="width:100%">
+	<table id="example2"  class="table compact table-bordered" style="width:100%">
     <thead class="bg-5">
       <tr class="text-center" style="border-bottom:none;">
 		<th>Reference</th>
         <th>Contract</th>
-        <th>Line Number</th>
+        <th>Line Reference</th>
 		<th>Aluminium System</th>
-		<th>Status</th>
+		<th>Item Status</th>
       </tr>
       <tr class="text-center" style="border-top:none;">
 		<td>Reference</td>
         <td>Contract</td>
-        <td>Line Number</td>
+        <td>Line Reference</td>
 		<td>Aluminium System</td>
-		<td>Status</td>
+		<td>Item Status</td>
       </tr>
     </thead>
-    <tbody id="example">
+    <tbody id="example" class="workers_table">
         {% for i in fast_assign %}
-            <tr class='clickable-row1' data-toggle="modal" data-id="{{  i.ContractItemId  }}" data-asid="{{  i.ActivityStatusId  }}" data-actend="{{  i.isActivityEnd  }}" data-target="#orderModal" {% if session['UserId'] == i.AssignedUserId %}style="background-color:#008080; color:#fff; opacity:0.7;"{% endif %}>
+        {% if i.AssignedUserId == session['UserId'] %}
+            <tr class='clickable-row1' data-toggle="modal" data-id="{{  i.ContractItemId  }}" data-asid="{{  i.ActivityStatusId  }}" data-actend="{{  i.isActivityEnd  }}" data-target="#orderModal" style="background-color:#122854; color:#fff; opacity:0.5;">
 				<td id="ContractReference{{  i.ContractItemId  }}">{{  i.ContractReference  }}</td>
 				<td id="Contract{{  i.ContractItemId  }}">{{  i.Contract  }}</td>
 				<td id="LineReferenceNumber{{  i.ContractItemId  }}">{{  i.LineReferenceNumber  }}</td>
 				<td id="Description{{  i.ContractItemId  }}">{{  i.Description  }}</td>
 				<td id="Status{{  i.ContractItemId  }}">{{  i.Status  }}</td>
             </tr>
+        {% endif %}
+        {% endfor %}
+        {% for i in fast_assign %}
+        {% if i.AssignedUserId != session['UserId'] %}
+            <tr class='clickable-row1' data-toggle="modal" data-id="{{  i.ContractItemId  }}" data-asid="{{  i.ActivityStatusId  }}" data-actend="{{  i.isActivityEnd  }}" data-target="#orderModal" >
+				<td id="ContractReference{{  i.ContractItemId  }}">{{  i.ContractReference  }}</td>
+				<td id="Contract{{  i.ContractItemId  }}">{{  i.Contract  }}</td>
+				<td id="LineReferenceNumber{{  i.ContractItemId  }}">{{  i.LineReferenceNumber  }}</td>
+				<td id="Description{{  i.ContractItemId  }}">{{  i.Description  }}</td>
+				<td id="Status{{  i.ContractItemId  }}">{{  i.Status  }}</td>
+            </tr>
+        {% endif %}
         {% endfor %}
     </tbody>
   </table>
@@ -81,14 +94,20 @@
                     </div>
                 </div>
             </div>
+
             <div id="showwhenstart" style="display:none;">
             <p>Current activity '<b id="ActStatusJQ"></b>' needs to be completed</p>
             </div>
+
             <div id="showwhencomplete" class="container" style="display:none;">
                 <div class="row">
+                    <div class="col-sm-12">
+                    <p>Previous activity was '<b id="ActStatus"></b>'</p>
+                    </div>
             {% for j in base_activities_data %}
-                    <div class="col-sm-4">
-                        <input type="submit" class="btn btn-warning no-show" style="border:#{{  j.BgColor  }} !important; background-color:#{{  j.BgColor  }} !important;" name="UpdateStatus" {% if j.Abbreviation is not none %}value="{{  j.Abbreviation  }}"{% else %}value="{{  j.Activity  }}"{% endif %}>
+                    <div class="col-sm-6">
+
+                        <input type="submit" class="btn btn-warning no-show" style="border:#{{  j.BgColor  }} !important; background-color:#{{  j.BgColor  }} !important; font-size:11px; font-weight: bold;" name="UpdateStatus" value="{{  j.Activity  }}">
                     </div>
             {% endfor %}
                 </div>
@@ -133,6 +152,7 @@ $('#orderModal').on('show.bs.modal', function (event) {
     modal.find('#LRN').text(lrn);
     modal.find('#Dsc').text(dscn);
     modal.find('#ActStatusJQ').text(stat);
+    modal.find('#ActStatus').text(stat);
 
     if (ActEnd == 'True' || stat == 'Cancelled') {
         $('#showwhencomplete').show();
@@ -148,7 +168,7 @@ $('#orderModal').on('show.bs.modal', function (event) {
 });
 </script>
 
-<script>
+<!--script>
 $(document).ready(function() {
     $('#example2 thead td').each( function () {
         var title = $('#example2 thead th').eq( $(this).index() ).text();
@@ -167,8 +187,33 @@ $(document).ready(function() {
     } );
     // $('#example2').DataTable({searching: false, "pageLength": 50, "aaSorting": []});
 } );
+</script-->
+
+<script>
+$(document).ready(function() {
+    // Setup - add a text input to each footer cell
+    $('#example2 thead td').each( function () {
+        var title = $(this).text();
+        $(this).html( '<input class="searching" type="text" placeholder="   Search..." />' );
+    } );
+
+    // DataTable
+    var table = $('#example2').DataTable({"ordering": false, "fixedHeader": {header: true}, "pageLength": 50, "aaSorting": []});
+
+    // Apply the search
+    table.columns().every( function () {
+        var that = this;
+
+        $( 'input', this.header() ).on( 'keyup input', function () {
+            if ( that.search() !== this.value ) {
+                that
+                    .search( this.value )
+                    .draw();
+            }
+        } );
+    } );
+} );
+
 </script>
-
-
 {% endblock %}
 

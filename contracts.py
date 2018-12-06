@@ -37,7 +37,7 @@ def worker(org_name, user_id):
                 db.session.commit()
                 return redirect(url_for('contracts_file.worker', org_name=session["OrgName"], user_id=session["UserId"]))
             elif request.form["UpdateStatus"] != "Complete Activity" or request.form["UpdateStatus"] != "Cancel":
-                New_AI = db.engine.execute("Select ActivityId from Activities where Abbreviation = '{}'".format(request.form["UpdateStatus"])).first()
+                New_AI = db.engine.execute("Select ActivityId from Activities where Activity = '{}'".format(request.form["UpdateStatus"])).first()
                 New_ASI = db.engine.execute("Select StatusId from ActivityStatuses where ActivityId = {} and Status like '%Start%'".format(int(New_AI[0]))).first()
                 db.engine.execute("Update ContractItems Set ActivityStatusId = {} where ContractItemId = {}".format(int(New_ASI[0]), request.form["CIIE"]))
                 db.session.commit()
@@ -143,9 +143,11 @@ def manage_contract_items(org_name, contract_name):
             contract_users = db.engine.execute("Select u.UserId, u.UserName from Users u join UserRoles r on r.UserId=u.UserId where r.RoleId=1 and u.IsActive = 1 and u.OrgId = {}".format(session["OrgId"])).fetchall()
             activities_data = db.engine.execute("select a.OrgId, a.StatusId, a.Status, a.SequenceNumber, a.ActivityId, s.Level from ActivityStatuses a left join Activities s on a.ActivityId=s.ActivityId where a.OrgId = 1 and s.Level = 2").fetchall()
             contract_data = db.engine.execute("SELECT ContractId, Description, DueDate, ContractReference FROM Contracts where Description = '{}'".format(contract_name)).first()
-            contract_ref = db.engine.execute("SELECT ContractReference FROM Contracts where Description = '{}'".format(contract_name)).first()
+            #contract_ref = db.engine.execute("SELECT ContractReference FROM Contracts where Description = '{}'".format(contract_name)).first()
             #item_data = db.engine.execute("Select c.OrgId, c.ContractId, c.ContractItemId, c.LineReferenceNumber, c.Description, c.Value, c.AssignedUserId, c.ActivityStatusId, u.UserName, a.Status from ContractItems c left join Users u on u.UserId = c.AssignedUserId left join ActivityStatuses a on a.StatusId = c.ActivityStatusId where ContractId = {} and c.OrgId = {}".format(int(contract_data[0]), session["OrgId"])).fetchall()
-            report_proc = db.engine.execute("ReportContractItemsForOrg {}, 0, 0".format(session["OrgId"])).fetchall()
+            #forceUpdate = 1
+            report_proc = db.engine.execute("[dbo].[ReportContractItemsForOrg] {}, {}".format(session["OrgId"], 1)).fetchall()
+            #report_proc = db.engine.execute("ReportContractItemsForOrg {}, 0, 0".format(session["OrgId"])).fetchall()
             now = datetime.date.today()
             if request.method == "POST":
                 if request.form["ContractItems"] == "Add Contract Item":
@@ -193,7 +195,7 @@ def manage_contract_items(org_name, contract_name):
                     db.engine.execute("DELETE FROM ContractItems where ContractItemId = {}".format(request.form["DeleteC"]))
                     db.session.commit()
                     return redirect(url_for('contracts_file.manage_contract_items', org_name=session["OrgName"], contract_name=contract_name))
-            return render_template('manage_contract_items.html', report_proc=report_proc, contract_ref=contract_ref, activities_data=activities_data, contract_data=contract_data, contract_users=contract_users, contract_name=contract_name)
+            return render_template('manage_contract_items.html', report_proc=report_proc, activities_data=activities_data, contract_data=contract_data, contract_users=contract_users, contract_name=contract_name)
         else:
             error = 'You are not an Admin'
             return render_template('index.html', Error=error)
