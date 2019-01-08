@@ -28,17 +28,19 @@ td a:hover {
 </div>
 {% endif %}
 
+{{ rs }}{{ ss }}
+
 <div class = "col-md-12">
 	<center>
 	    <h2 style="margin-top:10px;">Contracts</h2>
 
-	    <a class="btn btn-outline-success" data-toggle="modal" data-target="#AddContract">Add a contract <i class="fa fa-plus"></i></a>
+	    <a class="btn btn-outline-success" data-toggle="modal" data-target="#AddContract">Add a contract <i class="fas fa-plus"></i></a>
 	    <a href="{{ url_for('static', filename='reports/TemplateItems.xlsx') }}" download>Download Contract Items template</a>
-	    <a class="btn btn-outline-success" href="{{  url_for('users_file.dashboard', org_name=session['OrgName'])  }}">Back to main menu <i class="fa fa-arrow-left"></i></a>
+	    <a class="btn btn-outline-success" href="{{  url_for('users_file.dashboard', org_name=session['OrgName'])  }}">Back to main menu <i class="fas fa-arrow-left"></i></a>
 
 
 	</center>
-
+</div>
 
     <table id="example" class="table compact table-bordered" style="width:100%">
     <thead class="bg-5">
@@ -63,8 +65,8 @@ td a:hover {
 		<td>Contract Value</td>
 		<td>Contract Status</td>
 		<td>Contract Manager</td>
-		<td>Due Date</td>
-		<td>Days left</td>
+		<th></td>
+		<th></td>
 		<th style = "display:none;">Status</th>
 		<th style = "display:none;">Notes</th>
 		{% if session["RoleId"] > 1 %}
@@ -87,17 +89,17 @@ td a:hover {
 			<td style = "display:none;" id="ContractStatus{{  i.ContractId  }}">{{  i.Status  }}</td>
 			<td style = "display:none;" id="Notes{{  i.ContractId  }}">{{  i.Notes  }}</td>
 			{% if session["RoleId"] > 1 %}
-			<td style="text-align:center;"><a class="clickable" data-toggle="modal" data-target="#orderModal" data-id="{{  i.ContractId  }}"><i class="fa fa-edit change"></i></a></td>
+			<td style="text-align:center;"><a class="clickable" data-toggle="modal" data-target="#orderModal" data-id="{{  i.ContractId  }}"><i class="fas fa-edit change"></i></a></td>
 			<form method="POST" enctype=multipart/form-data action="{{  url_for('contracts_file.manage_contracts', org_name=session['OrgName'])  }}">
 			<td style="text-align:center;">
 			    {% if i.WithItems == 0 %}
-			    <label for="upload-file{{  i.ContractId  }}"><a><i class="fa fa-file change"></i> Browse...</a></label>
+			    <label for="upload-file{{  i.ContractId  }}"><a><i class="fas fa-file change"></i> Browse...</a></label>
 			    <input value="{{  i.Description  }}" name="ConName" type="hidden"/>
 			    <input value="{{  i.ContractId  }}" name="ConId" type="hidden"/>
 			    <input name="file" type="file" id="upload-file{{  i.ContractId  }}" />
 			    <input type=submit id="submit-file{{  i.ContractId  }}" class="btn btn-primary" name="AddContracts" value="Upload File">
 		        {% else %}
-		        <i class="fa fa-check"></i>
+		        <i class="fas fa-check"></i>
 		        {% endif %}
 		    </td>
 			</form>
@@ -108,7 +110,7 @@ td a:hover {
     </tbody>
     </table>
 
- </div>
+
 
 
 <!-- Add Modal -->
@@ -261,7 +263,7 @@ $(document).ready(function() {
         $(this).html( '<input class="searching" type="text" placeholder=" Search..." />' );
     } );
 
-    var table = $('#example').DataTable({"ordering": false,"fixedHeader": {header: true},  "pageLength": 50, "aaSorting": []});
+    var table = $('#example').DataTable({"ordering": false, "dom": 'rtip',"fixedHeader": {header: true},  "pageLength": 50, "aaSorting": []});
 
     table.columns().eq( 0 ).each( function ( colIdx ) {
         $( 'input', table.column( colIdx ).header() ).on( 'keyup change', function () {

@@ -25,22 +25,22 @@
 	<center>
 	    <h2 style="margin-top:10px;">Item History</h2>
 
-	    <p>line reference number: <span class="item_history">{{  items_history_name[1]  }}</span></p>
-        <p class="pad">aluminium system: <span class="item_history">{{  items_history_name[2]  }}</span></p>
+	    <h6>line reference number: <span class="item_history">{{  items_history_name[1]  }}</span></h6>
+        <h6 class="pad">aluminium system: <span class="item_history">{{  items_history_name[2]  }}</span></h6>
 
-	    <a class="btn btn-outline-success" href="{{  url_for('contracts_file.manage_contracts', org_name=session['OrgName'])  }}">Back to contracts <i class="fa fa-arrow-left"></i></a>
-	    <a style="width:250px;" class="btn btn-outline-success" href="{{  url_for('contracts_file.manage_contract_items', org_name=session['OrgName'], contract_name=contract_name)  }}">Back to contract items <i class="fa fa-arrow-left"></i></a>
-	    <a class="btn btn-outline-success" href="{{  url_for('users_file.dashboard', org_name=session['OrgName'])  }}">Back to main menu <i class="fa fa-arrow-left"></i></a>
+	    <a class="btn btn-outline-success" href="{{  url_for('contracts_file.manage_contracts', org_name=session['OrgName'])  }}">Back to contracts <i class="fas fa-arrow-left"></i></a>
+	    <a style="width:250px;" class="btn btn-outline-success" href="{{  url_for('contracts_file.manage_contract_items', org_name=session['OrgName'], contract_name=contract_name)  }}">Back to contract items <i class="fas fa-arrow-left"></i></a>
+	    <a class="btn btn-outline-success" href="{{  url_for('users_file.dashboard', org_name=session['OrgName'])  }}">Back to main menu <i class="fas fa-arrow-left"></i></a>
 	</center>
 </div>
 
-<div class = "col-md-12">
+
 <table id="example" class="table compact table-bordered" style="width:100%">
     <thead class="bg-5">
       <tr class="text-center">
-		<th>Status</th>
-        <th>User Name</th>
-		<th>Date</th>
+		<th>Status changed to:</th>
+        <th>by User:</th>
+		<th>on Date:</th>
       </tr>
       <tr class="searchin text-center" style="border-top:none;">
 		<td>Status</td>
@@ -68,7 +68,7 @@
         {% endfor %}
     </tbody>
     </table>
-    </div>
+
 
 <script>
 $(document).ready(function() {
@@ -77,7 +77,7 @@ $(document).ready(function() {
         $(this).html( '<input class="searching" type="text" placeholder=" Search..." />' );
     } );
 
-    var table = $('#example').DataTable({"ordering": false, "pageLength": 50, "aaSorting": []});
+    var table = $('#example').DataTable({"ordering": false, "dom": 'rtip', "fixedHeader": {header: true}, "pageLength": 50, "aaSorting": []});
 
     table.columns().eq( 0 ).each( function ( colIdx ) {
         $( 'input', table.column( colIdx ).header() ).on( 'keyup change', function () {

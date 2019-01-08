@@ -4,6 +4,9 @@
 
 {% block navhead %}Flow Vis{% endblock %}
 
+{% block navbody %}
+{% endblock %}
+
 {% block body %}
 {% if Error|length > 1 %}
 <div class="danger text-center">
@@ -11,21 +14,10 @@
 </div>
 {% endif %}
 
-<!--script
-    type="text/javascript"
-    src="http://www.appsgeyser.com/js/appsgeyser_redirect_page.js"></script>
-</div>
-<script type="text/javascript">
-    appsgeyserRedirect.init({
-        url: "http://app.appsgeyser.com/7948168/Flow%20Vis",
-        alertFrequency: "once"
-    }).redirectPage();
-</script-->
-
 <div class="login-form">
     <center>
     <div class="container col-md-10 offset-md-1">
-            <h2 style="margin-bottom:20px; margin-top:80px;">Enter your Organisation details:</h2>
+            <h2 style="margin-bottom:20px; margin-top:40px;">Enter your Organisation details:</h2>
             <form class="dsadsa" action="{{  url_for('users_file.login_org')  }}" method="POST">
                 <div class="form-group">
                     <!--label>Organisation Email</label-->

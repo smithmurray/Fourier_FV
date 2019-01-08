@@ -118,7 +118,7 @@
         <div class="form-group">
             <center>
             <input type="hidden" name="EID" id="EID"/>
-            <label class="text-center">Role</label>
+            <label class="text-center">Role:</label>
             <select class="form-control ologin" name="ERole" id="ERole">
 
               {% for j in roles_data %}
@@ -154,12 +154,12 @@
       <div class="modal-body">
         <div class="form-group">
             <center>
-            <label class="text-center">Name</label>
+            <label class="text-center">Name:</label>
             <input type="hidden" name="EID" id="EID"/>
             <input style="text-align:left;" class="form-control ologin" type="text" required name="EName" id="EName"/>
-            <label class="text-center">PIN</label>
+            <label class="text-center">PIN:</label>
             <input name="EPin" id="EPin" style="text-align:left;" class="form-control ologin" pattern="[0-9]{4,4}" required title="Pin must be 4 numbers long">
-            <label class="text-center">Is Active</label><br>
+            <label class="text-center">Is Active:</label><br>
             <select class="form-control ologin" name="EAct" id="EAct">
               <option value="True">True</option>
               <option value="False">False</option>

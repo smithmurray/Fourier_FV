@@ -5,7 +5,6 @@
     nav {
         display:none;
     }
-
 }
 
 .picture {
@@ -19,7 +18,18 @@
     outline: none;
     border-radius:25px;
     box-shadow:none;
-    width:90%;
+    width:100%;
+    line-height:1.6;
+    text-align: center; !important;
+}
+
+.searching:focus {
+    border:1px solid #122854;
+    outline: none;
+    border-radius:25px;
+    box-shadow:none;
+    width:100%;
+    text-align: center; !important;
 }
 
 .clickable-row:hover {
@@ -43,28 +53,28 @@
     cursor:pointer;
     outline: 1px solid #122854;
     color:#122854;
-}
 
-
-.searching:focus {
-    border:1px solid #122854;
-    outline: none;
-    border-radius:25px;
-    box-shadow:none;
-    width:90%;
 }
 
 body {
-      font: 14px Montserrat, sans-serif;
-      line-height: 1.8;
+      font: 12px Montserrat, sans-serif;
+      line-height: 1.2;
       color: black;  /* #f5f6f7 */
       width: 100%;
       height: 100%;
-      padding-bottom:20px;
+      padding-bottom:10px;
   }
 
+.al1 {
+    float:left;
+    text-align:left;
+}
 
 
+.al3 {
+    float:right;
+    text-align:right;
+}
 
 .item_history {
     color:#808080;
@@ -73,10 +83,10 @@ body {
 .items_history {
     color:#808080;
     font-weight: bold;
-    font-size:20px;
+    font-size:16px;
 }
 
-h2, h4 {
+h2, h4, h6 {
     font: Montserrat sans-serif;
     color:#808080;
 }
@@ -172,66 +182,72 @@ a:hover, .change:hover {
     padding-left:10px;
     background-color: #f44336;
     color:#fff;
+    line-height:1.5;
 }
 
 label {
    cursor: pointer;
+   font: 14px Montserrat, sans-serif;
+   margin-top:3px;
    /* Style as you please, it will become the visible UI component. */
 }
 
 .login {
-    border: 2px solid #008080;
-    color: #008080;
+    border: 2px solid #122854;
+    color: #122854;
     font-size: 48px;
-    width:100px;
-    height:100px;
+    width:80px;
+    height:80px;
     border-radius:25px;
     text-align: center;
-
+    opacity:0.4;
 }
 
 .login:focus {
-    border: 2px solid #008080;
-    width:100px;
-    height:100px;
+    border: 2px solid #122854;
+
     font-style: arial;
     font-size: 48px;
     outline: none;
     box-shadow:none;
     text-align: center;
-
+    opacity:0.7;
 }
 
 .ologin {
-    border: 2px solid #008080;
-    color: #008080;
+    border: 2px solid #122854;
+    color: #122854;
     border-radius:25px;
     text-align: center;
+    opacity:0.4;
 }
 
 .ologin:focus {
-    border: 2px solid #008080;
-    color: #008080;
+    border: 2px solid #122854;
+    color: #122854;
     font-style: arial;
     outline: none;
     box-shadow:none;
     text-align: center;
+    opacity:0.7;
 }
 
 .qlogin {
-    border: 2px solid #008080;
-    color: #008080;
+    border: 2px solid #122854;
+    color: #122854;
     border-radius:5px;
     text-align: left;
+    opacity:0.6;
 }
 
 .qlogin:focus {
-    border: 2px solid #008080;
-    color: #008080;
+    border: 2px solid #122854;
+    color: #122854;
     font-style: arial;
     outline: none;
     box-shadow:none;
     text-align: left;
+    opacity:0.6;
 }
 
 .ilogin {
@@ -277,7 +293,11 @@ label {
 .btn-primary {
     border:1px solid #122854;
     background-color:#122854;
-    border-radius:5px;
+    border-radius:25px;
+}
+
+.work {
+    width:200px;
 }
 
 .navbar {
@@ -291,7 +311,8 @@ label {
 
 .btn-warning {
     opacity:0.8;
-    width:100%;
+
+    height:50px; !important;
     margin-bottom:10px;
     color:#fff !important;
     border-radius:25px;
@@ -299,9 +320,9 @@ label {
     padding:5px;
 }
 
-.btn-warning:hover {
+.btn-warning:hover, .btn-warning:focus {
     opacity:1;
-    width:100%;
+
     margin-bottom:10px;
     color:#fff !important;
     border-radius:25px;
@@ -311,7 +332,7 @@ label {
 }
 
 .btn-primary:focus, .btn-primary:hover, .btn-primary:active {
-    border-radius:5px;
+    border-radius:25px;
     border:1px solid #122854 !important;
     color:#fff !important;
     background-color:#122854 !important;

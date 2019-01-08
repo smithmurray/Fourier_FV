@@ -5,6 +5,7 @@ from flask_database import db
 from models import Contracts, ContractItems
 from load_items import contract_data
 import datetime
+#from datetime import datetime
 
 contracts_file = Blueprint('contracts_file',__name__,template_folder='templates',static_folder='static')
 
@@ -19,69 +20,117 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+#Items Page
 @contracts_file.route('/<string:org_name>/Worker/<int:user_id>', methods=["POST", "GET"])
 def worker(org_name, user_id):
     if user_id == session["UserId"]:
-        fast_assign = db.engine.execute("Select i.ContractItemId, i.ActivityStatusId, i.LineReferenceNumber, i.Description, i.AssignedUserId, u.UserName, c.Description  as 'Contract', c.ContractReference, a.Status, a.isActivityEnd from ContractItems i left join Contracts c on c.ContractId = i.ContractId left join Users u on i.AssignedUserId=u.UserId left join ActivityStatuses a on a.StatusId=i.ActivityStatusId where i.OrgId = {} order by c.Description asc".format(session["OrgId"])).fetchall()
-        base_activities_data = db.engine.execute("select distinct a.OrgId, a.ActivityId, a.Abbreviation, a.Activity, s.BgColor from Activities a left join ActivityStatuses s on s.ActivityId = a.ActivityId where a.Level = 2").fetchall()
-        #items_assigned_p = db.engine.execute("Select i.ContractItemId, i.LineReferenceNumber, i.Description, i.Value, i.AssignedUserId, i.ActivityStatusId, u.UserName, c.Description  as 'Contract', c.ContractReference, c.DueDate, a.Status, a.isActivityEnd from ContractItems i left join Contracts c on c.ContractId = i.ContractId left join Users u on i.AssignedUserId=u.UserId left join ActivityStatuses a on a.StatusId=i.ActivityStatusId where i.AssignedUserId = {} order by c.Description asc".format(session["UserId"])).fetchall()
-        #items_assigned = db.engine.execute("Select i.ContractItemId, i.LineReferenceNumber, i.Description, i.Value, i.AssignedUserId, i.ActivityStatusId, u.UserName, c.Description  as 'Contract', c.ContractReference, c.DueDate, a.Status, a.isActivityEnd from ContractItems i left join Contracts c on c.ContractId = i.ContractId left join Users u on i.AssignedUserId=u.UserId left join ActivityStatuses a on a.StatusId=i.ActivityStatusId where not i.AssignedUserId = {} or i.AssignedUserId is null and i.OrgId = {} order by c.Description asc".format(session["UserId"], session["OrgId"])).fetchall()
-        #activities_data = db.engine.execute("select a.OrgId, a.StatusId, a.Status, a.SequenceNumber, a.ActivityId, a.BgColor, s.Level from ActivityStatuses a left join Activities s on a.ActivityId=s.ActivityId where a.OrgId = 1 and s.Level = 2").fetchall()
+        #rs = '{timestamp} -- request started'.format(timestamp=datetime.utcnow().isoformat())
+
+        fast_assign = db.engine.execute("""
+                                        Select
+                                        i.ContractItemId, i.ActivityStatusId, i.LineReferenceNumber, i.Description, i.AssignedUserId,
+                                        c.Description  as 'Contract', c.ContractReference, c.DueDate, a.Status, a.isActivityEnd
+                                        from ContractItems i
+                                        join Contracts c on
+                                        c.ContractId = i.ContractId
+                                        join ActivityStatuses a on
+                                        a.StatusId=i.ActivityStatusId
+                                        where i.OrgId = {} and
+                                        DueDate >= DATEADD(DAY, -90, GETDATE())
+                                        """.format(session["OrgId"])).fetchall()
+
+        base_activities_data = db.engine.execute("""
+                                                 select distinct
+                                                 a.OrgId, a.ActivityId, a.Activity, s.BgColor
+                                                 from Activities a
+                                                 left join ActivityStatuses s on
+                                                 s.ActivityId = a.ActivityId
+                                                 where a.Level = 2
+                                                 """).fetchall()
+
+        #ss= '{timestamp} -- request ended'.format(timestamp=datetime.utcnow().isoformat())
         if request.method == "POST":
             if request.form["UpdateStatus"] == "Complete Activity":
-                db.engine.execute("Update ContractItems Set ActivityStatusId = {} where ContractItemId = {}".format(int(request.form["CIIS"]) + 1, request.form["CIIE"]))
+
+                db.engine.execute("""
+                                  Update ContractItems
+                                  Set ActivityStatusId = {}
+                                  where ContractItemId = {}
+                                  """.format(int(request.form["CIIS"]) + 1, request.form["CIIE"]))
+
                 db.session.commit()
                 return redirect(url_for('contracts_file.worker', org_name=session["OrgName"], user_id=session["UserId"]))
-            elif request.form["UpdateStatus"] == "Cancel Item" or request.form["UpdateStatus"] == "Cancelled":
-                db.engine.execute("Update ContractItems Set ActivityStatusId = 32 where ContractItemId = {}".format(request.form["CIIE"]))
+            elif request.form["UpdateStatus"] == "Cancelled":
+
+                db.engine.execute("""
+                                  Update ContractItems
+                                  Set ActivityStatusId = 32
+                                  where ContractItemId = {}
+                                  """.format(request.form["CIIE"]))
+
                 db.session.commit()
                 return redirect(url_for('contracts_file.worker', org_name=session["OrgName"], user_id=session["UserId"]))
-            elif request.form["UpdateStatus"] != "Complete Activity" or request.form["UpdateStatus"] != "Cancel":
-                New_AI = db.engine.execute("Select ActivityId from Activities where Activity = '{}'".format(request.form["UpdateStatus"])).first()
-                New_ASI = db.engine.execute("Select StatusId from ActivityStatuses where ActivityId = {} and Status like '%Start%'".format(int(New_AI[0]))).first()
-                db.engine.execute("Update ContractItems Set ActivityStatusId = {} where ContractItemId = {}".format(int(New_ASI[0]), request.form["CIIE"]))
+            elif request.form["UpdateStatus"] != "Complete Activity" or request.form["UpdateStatus"] != "Cancelled":
+
+                New_AI = db.engine.execute("""
+                                           Select
+                                           s.StatusID
+                                           from ActivityStatuses s
+                                           join Activities a on
+                                           a.ActivityId = s.ActivityId
+                                           where a.Activity = '{}' and s.isActivityStart = 1
+                                           """.format(request.form["UpdateStatus"])).first()
+
+                db.engine.execute("""
+                                  Update ContractItems
+                                  Set ActivityStatusId = {}, AssignedUserId = {}
+                                  where ContractItemId = {}
+                                  """.format(New_AI[0], session["UserId"], request.form["CIIE"]))
+
                 db.session.commit()
                 return redirect(url_for('contracts_file.worker', org_name=session["OrgName"], user_id=session["UserId"]))
-            """
-            if request.form["UpdateStatus"] == "Save":
-                Update_Item_Status = ContractItems.query.get(request.form["CIIE"])
-                #Update_Item_Status.ActivityStatusId = request.form["CIIS"]
-                db.session.commit()
-                db.engine.execute("Update ContractItems Set AssignedUserId = 0 where ContractItemId = {}".format(request.form["CIIE"]))
-                db.session.commit()
-                return redirect(url_for('contracts_file.worker', org_name=session["OrgName"], user_id=session["UserId"]))
-            elif request.form["UpdateStatus"] == "Complete Activity":
-                db.engine.execute("Update ContractItems Set ActivityStatusId = {} where ContractItemId = {}".format(int(request.form["CIIS"]) + 1, request.form["CIIE"]))
-                db.session.commit()
-                return redirect(url_for('contracts_file.worker', org_name=session["OrgName"], user_id=session["UserId"]))
-            elif request.form["CIIS"] is not None:
-                New_SI = db.engine.execute("Select StatusId from ActivityStatuses where Status = {}".format(request.form["UpdateStat"]))
-                db.engine.execute("Update ContractItems Set ActivityStatusId = {} where ContractItemId = {}".format(int(New_SI[0]), request.form["CIIE"]))
-                db.session.commit()
-            """
         return render_template('Workers.html', fast_assign=fast_assign, user_id=user_id, base_activities_data=base_activities_data)
     else:
         error = 'You do not have authorisation to view this page'
         return render_template('Workers.html', Error=error)
 
+#Contracts Page
 @contracts_file.route('/<string:org_name>/ManageContracts', methods=["POST", "GET"])
 def manage_contracts(org_name):
     if session.get('UserId'):
         if session["RoleId"] > 1:
+
             sp = db.engine.execute("ReportContracts {}".format(session["OrgId"])).fetchall()
-            contract_managers = db.engine.execute("Select u.UserId, u.UserName from Users u join UserRoles r on r.UserId=u.UserId where r.RoleId>1 and u.IsActive = 1").fetchall()
+
+            contract_managers = db.engine.execute("""
+                                                  Select
+                                                  u.UserId, u.UserName
+                                                  from Users u
+                                                  join UserRoles r on
+                                                  r.UserId=u.UserId
+                                                  where r.RoleId>1 and u.IsActive = 1
+                                                  """).fetchall()
+
+            activities_data = db.engine.execute("""
+                                                Select
+                                                a.OrgId, a.StatusId, a.Status, a.SequenceNumber, a.ActivityId, s.Level
+                                                from ActivityStatuses a
+                                                left join Activities s on
+                                                a.ActivityId=s.ActivityId
+                                                where a.OrgId = 1 and s.Level = 1
+                                                """).fetchall()
+
             #contract_id = db.engine.execute("Select c.OrgId, c.ContractId, c.ContractReference, c.Description, c.DueDate, c.AssignedUserId, c.ContactPerson,c.Notes,c.Value, c.ActivityStatusId, u.UserName, a.StatusId, a.Status from Contracts c left join Users u on u.UserId = c.AssignedUserId left join ActivityStatuses a on a.StatusId = c.ActivityStatusId where c.OrgId = {} order by c.DueDate asc".format(session["OrgId"])).fetchall()
-            activities_data = db.engine.execute("select a.OrgId, a.StatusId, a.Status, a.SequenceNumber, a.ActivityId, s.Level from ActivityStatuses a left join Activities s on a.ActivityId=s.ActivityId where a.OrgId = 1 and s.Level = 1").fetchall()
-            now = datetime.date.today()
+
+            #now = datetime.date.today()
+
             if request.method == "POST":
                 if request.form["AddContracts"] == "Add Contract":
                     Contracts_Add = Contracts(OrgId = session["OrgId"], ContractReference = request.form["CRef"], Description = request.form["CName"], ActivityStatusId = request.form["CStatus"], DueDate = request.form["CDate"], AssignedUserId = request.form["CMan"], Notes = request.form["CNotes"])
-                    """
-                    for i in contract_id:
-                        if i[2] == request.form["CRef"]:
+                    for i in sp:
+                        if i[1] == request.form["CRef"]:
                             error = 'This reference has already been used'
-                            return render_template('manage_contracts.html', activities_data=activities_data, now=now, Error=error, contract_managers=contract_managers)
-                    """
+                            return render_template('manage_contracts.html', sp=sp, activities_data=activities_data, Error=error, contract_managers=contract_managers)
                     db.session.add(Contracts_Add)
                     db.session.commit()
                     return redirect(url_for('contracts_file.manage_contracts', org_name=session["OrgName"]))
@@ -91,14 +140,13 @@ def manage_contracts(org_name):
                     Contract_Edit.Description = request.form["ECName"]
                     Contract_Edit.DueDate = request.form["ECDate"]
                     Contract_Edit.AssignedUserId = request.form["ECMan"]
-
                     Contract_Edit.Notes = request.form["ECNotes"]
                     Contract_Edit.ActivityStatusId = request.form["ECStatus"]
                     check_ref = db.engine.execute("Select ContractReference from Contracts where not ContractId = {}".format(request.form["ECID"])).fetchall()
                     for i in check_ref:
                         if i[0] == Contract_Edit.ContractReference:
                             error = 'This reference has already been used'
-                            return render_template('manage_contracts.html', activities_data=activities_data, now=now, Error=error, contract_managers=contract_managers)
+                            return render_template('manage_contracts.html', sp=sp, activities_data=activities_data, Error=error, contract_managers=contract_managers)
                     db.session.commit()
                     return redirect(url_for('contracts_file.manage_contracts', org_name=session["OrgName"]))
                 elif request.form["AddContracts"] == "Upload File":
@@ -124,7 +172,7 @@ def manage_contracts(org_name):
                     else:
                         error = 'Please select the correct file'
                         return render_template('manage_contracts.html', Error=error, contract_managers=contract_managers)
-            return render_template('manage_contracts.html', sp=sp, activities_data=activities_data, contract_managers=contract_managers, now=now)
+            return render_template('manage_contracts.html', sp=sp, activities_data=activities_data, contract_managers=contract_managers)
         else:
             error = 'You are not an Admin'
             return render_template('Workers.html', Error=error)
@@ -136,19 +184,43 @@ def manage_contracts(org_name):
             error = 'You are not logged in'
             return render_template('login_org.html', Error=error)
 
+#CI Page
 @contracts_file.route('/<string:org_name>/<string:contract_name>/ContractItems', methods=["POST", "GET"])
 def manage_contract_items(org_name, contract_name):
     if session.get('UserId'):
         if session["RoleId"] > 1:
-            contract_users = db.engine.execute("Select u.UserId, u.UserName from Users u join UserRoles r on r.UserId=u.UserId where r.RoleId=1 and u.IsActive = 1 and u.OrgId = {}".format(session["OrgId"])).fetchall()
-            activities_data = db.engine.execute("select a.OrgId, a.StatusId, a.Status, a.SequenceNumber, a.ActivityId, s.Level from ActivityStatuses a left join Activities s on a.ActivityId=s.ActivityId where a.OrgId = 1 and s.Level = 2").fetchall()
-            contract_data = db.engine.execute("SELECT ContractId, Description, DueDate, ContractReference FROM Contracts where Description = '{}'".format(contract_name)).first()
-            #contract_ref = db.engine.execute("SELECT ContractReference FROM Contracts where Description = '{}'".format(contract_name)).first()
+
+            contract_users = db.engine.execute("""
+                                               Select
+                                               u.UserId, u.UserName
+                                               from Users u
+                                               join UserRoles r on
+                                               r.UserId=u.UserId
+                                               where r.RoleId=1 and u.IsActive = 1 and u.OrgId = {}
+                                               """.format(session["OrgId"])).fetchall()
+
+            activities_data = db.engine.execute("""
+                                                Select
+                                                a.OrgId, a.StatusId, a.Status, a.SequenceNumber, a.ActivityId, s.Level
+                                                from ActivityStatuses a
+                                                left join Activities s on
+                                                a.ActivityId=s.ActivityId where a.OrgId = 1 and s.Level = 2
+                                                """).fetchall()
+
+            contract_data = db.engine.execute("""
+                                              SELECT
+                                              ContractId, Description, DueDate, ContractReference
+                                              FROM Contracts
+                                              where Description = '{}'
+                                              """.format(contract_name)).first()
+
+            #contract_ref = db.engine.execute("""SELECT ContractReference FROM Contracts where Description = '{}'".format(contract_name)).first()
             #item_data = db.engine.execute("Select c.OrgId, c.ContractId, c.ContractItemId, c.LineReferenceNumber, c.Description, c.Value, c.AssignedUserId, c.ActivityStatusId, u.UserName, a.Status from ContractItems c left join Users u on u.UserId = c.AssignedUserId left join ActivityStatuses a on a.StatusId = c.ActivityStatusId where ContractId = {} and c.OrgId = {}".format(int(contract_data[0]), session["OrgId"])).fetchall()
             #forceUpdate = 1
+
             report_proc = db.engine.execute("[dbo].[ReportContractItemsForOrg] {}, {}".format(session["OrgId"], 1)).fetchall()
-            #report_proc = db.engine.execute("ReportContractItemsForOrg {}, 0, 0".format(session["OrgId"])).fetchall()
             now = datetime.date.today()
+
             if request.method == "POST":
                 if request.form["ContractItems"] == "Add Contract Item":
                     for i in report_proc:
@@ -174,7 +246,6 @@ def manage_contract_items(org_name, contract_name):
                             Contract_Items_Edit.AssignedUserId = 0
                         else:
                             Contract_Items_Edit.AssignedUserId = request.form["EIAUser"]
-
                         Contract_Items_Edit.ActivityStatusId = request.form["EIStatus"]
                         check_ref = db.engine.execute("Select * from Contracts where not ContractId = {}".format(request.form["EIID"])).fetchall()
                         for i in check_ref:

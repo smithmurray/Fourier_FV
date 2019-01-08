@@ -25,23 +25,23 @@
 	<center>
 	    <h2 style="margin-top:10px;">{{  contract_data[1]  }} Items</h2>
 
-	    <p>contract reference: <span class="item_history">{{  contract_data[3]  }}</span></p>
-        <p class="pad">due date: <span class="item_history">{{  contract_data[2]  }}</span></p>
+	    <h6>contract reference: <span class="item_history">{{  contract_data[3]  }}</span></h6>
+        <h6 class="pad">due date: <span class="item_history">{{  contract_data[2]  }}</span></h6>
 
 
-	    <a class="btn btn-outline-success" data-toggle="modal" data-target="#AddContract">Add a contract item <i class="fa fa-plus"></i></a>
-	    <a class="btn btn-outline-success" href="{{  url_for('contracts_file.manage_contracts', org_name=session['OrgName'])  }}">Back to contracts <i class="fa fa-arrow-left"></i></a>
-	    <a class="btn btn-outline-success" href="{{  url_for('users_file.dashboard', org_name=session['OrgName'])  }}">Back to main menu <i class="fa fa-arrow-left"></i></a>
+	    <a class="btn btn-outline-success" data-toggle="modal" data-target="#AddContract">Add a contract item <i class="fas fa-plus"></i></a>
+	    <a class="btn btn-outline-success" href="{{  url_for('contracts_file.manage_contracts', org_name=session['OrgName'])  }}">Back to contracts <i class="fas fa-arrow-left"></i></a>
+	    <a class="btn btn-outline-success" href="{{  url_for('users_file.dashboard', org_name=session['OrgName'])  }}">Back to main menu <i class="fas fa-arrow-left"></i></a>
 
 
 	</center>
-
+</div>
 
     <table id="example" class="table compact table-bordered" style="width:100%">
     <thead class="bg-5">
       <tr class="text-center">
 		<th>Line Reference</th>
-		<th>Aluminium System</th>
+		<th>Product System</th>
 		<th>Rand Value</th>
 		<th>Item Status</th>
 		<th>Assigned User</th>
@@ -50,7 +50,7 @@
       </tr>
       <tr class="searchin text-center" style="border-top:none;">
 		<td>Line Reference</td>
-		<td>Aluminium System</td>
+		<td>Product System</td>
 		<td>Rand Value</td>
 		<td>Item Status</td>
 		<td>Assigned User</td>
@@ -67,7 +67,7 @@
 			<td>R{{  i.Value  }}</td>
 			<td>{% if i.Status is not none %}{{  i.Status  }}{% else %}{% endif %}</td>
 			<td>{% if i.UserName is not none %}{{  i.UserName  }}{% else %}{% endif %}</td>
-			<td style="text-align:center;"><a class="" data-toggle="modal" data-target="#exampleModal{{  i.ContractItemId  }}"><i class="fa fa-edit change"></i></a></td>
+			<td style="text-align:center;"><a class="" data-toggle="modal" data-target="#exampleModal{{  i.ContractItemId  }}"><i class="fas fa-edit change"></i></a></td>
             <form action="{{  url_for('contracts_file.manage_contract_items', org_name=session['OrgName'], contract_name=contract_name)  }}" method="POST">
             <input name="ContractItemId" type="hidden" value="{{  i.ContractItemId  }}">
             <td style="text-align:center;"><input name="ContractItems" type="submit" class="btn btn-primary no-show" value="View"></td>
@@ -77,7 +77,7 @@
         {% endfor %}
     </tbody>
     </table>
- </div>
+
 
 
 
@@ -99,7 +99,7 @@
             <center>
             <label class="text-center">Item Reference:</label>
             <input style="text-align:left;" class="form-control qlogin" type="text" required name="IRef" id="IRef"/>
-            <label class="text-center">Aluminium System:</label>
+            <label class="text-center">Product System:</label>
             <input style="text-align:left;" class="form-control qlogin" type="text" required name="IName" id="IName"/>
             <label class="text-center">Item Value:</label>
             <input style="text-align:left;" step="0.01" min="0" class="form-control qlogin" type="number" required name="IValue" id="IValue"/>
@@ -148,7 +148,7 @@
 
             <label class="text-center">Item Reference:</label>
             <input class="form-control qlogin" type="text" required name="EIRef" id="EIRef" value="{{  i.LineReferenceNumber  }}"/>
-            <label class="text-center">Aluminium System:</label>
+            <label class="text-center">Product System:</label>
             <input class="form-control qlogin" type="text" required name="EIName" id="EIName" value="{{  i.AluminiumSystem  }}"/>
             <label class="text-center">Item Value:</label>
             <input class="form-control qlogin" value="{{  i.Value  }}" type="text" required name="EIValue" id="IValue"/>
@@ -196,7 +196,7 @@ $(document).ready(function() {
         $(this).html( '<input class="searching" type="text" placeholder=" Search..." />' );
     } );
 
-    var table = $('#example').DataTable({"ordering": false, "fixedHeader": {header: true}, "pageLength": 50, "aaSorting": []});
+    var table = $('#example').DataTable({"ordering": false, "dom": 'rtip', "fixedHeader": {header: true}, "pageLength": 50, "aaSorting": []});
 
     table.columns().eq( 0 ).each( function ( colIdx ) {
         $( 'input', table.column( colIdx ).header() ).on( 'keyup change', function () {

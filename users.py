@@ -2,6 +2,8 @@ from flask import Flask, Blueprint, render_template,request,session,redirect,url
 from flask_database import db
 from datetime import timedelta
 from models import Users, UserRoles
+from datetime import datetime
+
 
 users_file = Blueprint('users_file',__name__,template_folder='templates',static_folder='static')
 
@@ -70,8 +72,21 @@ def dashboard(org_name):
 def manage_users(org_name):
     if session.get('UserId'):
         if session["RoleId"] == 4:
-            user_data = db.engine.execute("SELECT u.UserId, u.UserName, u.IsActive, u.PIN, u.OrgId, r.RoleId, n.RoleName FROM Users u left join UserRoles r on u.UserId=r.UserId left join Roles n on n.RoleId=r.RoleId where u.OrgId = {} order by IsActive desc, UserName asc".format(session["OrgId"])).fetchall()
+            rs = '{timestamp} -- request started'.format(timestamp=datetime.utcnow().isoformat())
+
+            user_data = db.engine.execute("""SELECT distinct
+                                             u.UserId, u.UserName, u.IsActive, u.PIN, u.OrgId, r.RoleId, n.RoleName
+                                             FROM Users u
+                                             left join UserRoles r on
+                                             u.UserId=r.UserId
+                                             left join Roles n on
+                                             n.RoleId=r.RoleId
+                                             where u.OrgId = {}
+                                             order by IsActive desc, UserName asc
+                                             """.format(session["OrgId"])).fetchall()
+
             roles_data = db.engine.execute("SELECT * FROM Roles").fetchall()
+            ss= '{timestamp} -- request ended'.format(timestamp=datetime.utcnow().isoformat())
             if request.method == "POST":
                 if request.form["AddUsers"] == "Add User":
                     db.engine.execute("Insert into Users (UserName, PIN, IsActive, OrgId) values ('{}', {}, {}, {})".format(request.form["UName"], request.form["UPin"], int(request.form["UAct"]), session["OrgId"]))
@@ -108,7 +123,7 @@ def manage_users(org_name):
                     Roles_Edit.RoleId = request.form["ERole"]
                     db.session.commit()
                     return redirect(url_for('users_file.manage_users', org_name=session["OrgName"]))
-            return render_template('manage_users.html', user_data=user_data, roles_data=roles_data)
+            return render_template('manage_users.html', rs=rs, ss=ss, user_data=user_data, roles_data=roles_data)
         else:
             if session["RoleId"] > 1:
                 error = 'You are not an Admin'

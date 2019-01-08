@@ -6,6 +6,11 @@
 
 {% block href %}"{{  url_for('users_file.login', org_name=session['OrgName'])  }}"{% endblock %}
 
+{% block navbody %}
+{% endblock %}
+
+
+
 {% block body %}
 {% if Error|length > 1 %}
 <div class="danger text-center">
@@ -15,7 +20,7 @@
 
 <div class="login-form">
     <center>
-    <div class="container col-md-12" style="margin-top:80px">
+    <div class="container col-md-12" style="margin-top:40px">
 
         <h2>Please enter your pin:</h2>
         <br>
