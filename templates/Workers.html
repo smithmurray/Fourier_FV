@@ -46,9 +46,15 @@
 </div>
 {% endif %}
 
+{% if request.args.get('Confirmation') != None %}
+<div class="confirm text-center">
+    <span>{{  request.args.get('Confirmation')  }}</span>
+</div>
+{% endif %}
+
 <div class="container col-sm-12 text-center">
 	{% if session["RoleId"] != 1 %}
-	<h2 style="padding:5px;">Contract Lines</h2>
+	<h2>Contract Lines</h2>
 	<div class="row" style="padding-bottom:5px;">
         <div class=" col-sm-4 text-center">
             <a class="btn btn-primary work" href="{{  url_for('users_file.dashboard', org_name=session['OrgName'])  }}">Back to main menu <i class="fa fa-arrow-left"></i></a>
@@ -104,7 +110,7 @@
 				<td id="LineReferenceNumber{{  i.ContractItemId  }}">{{  i.LineReferenceNumber  }}</td>
 				<td id="Description{{  i.ContractItemId  }}">{{  i.Description  }}</td>
 				<td id="DueDate{{  i.ContractItemId  }}">{{  i.DueDate  }}</td>
-				<td id="Status{{  i.ContractItemId  }}">{{  i.Status  }}{% if i.isActivityEnd %}d{% else %}ed{% endif %}</td>
+				<td id="Status{{  i.ContractItemId  }}">{{  i.Status  }}{% if i.isActivityEnd %}d{% elif i.isCancelled %}{% else %}ed{% endif %}</td>
             </tr>
         {% endif %}
         {% endfor %}
@@ -116,7 +122,7 @@
 				<td id="LineReferenceNumber{{  i.ContractItemId  }}">{{  i.LineReferenceNumber  }}</td>
 				<td id="Description{{  i.ContractItemId  }}">{{  i.Description  }}</td>
 				<td id="DueDate{{  i.ContractItemId  }}">{{  i.DueDate  }}</td>
-				<td id="Status{{  i.ContractItemId  }}">{{  i.Status  }}{% if i.isActivityEnd %}d{% else %}ed{% endif %}</td>
+				<td id="Status{{  i.ContractItemId  }}">{{  i.Status  }}{% if i.isActivityEnd %}d{% elif i.isCancelled %}{% else %}ed{% endif %}</td>
             </tr>
         {% endif %}
         {% endfor %}
@@ -136,17 +142,18 @@
             <input type="hidden" id="CIIS"  name="CIIS">
             <input type="hidden" id="CIIA"  name="CIIA">
 
-            <div class="container">
+            <div class="container" style="margin-bottom:15px;">
                 <div class="row">
-                    <div class="col-sm-3 offset-sm-1 al1">
-        	            <p id="contr" class="items_history"></p>
+                    <div class="col-sm-3 al1">
+        	            <input readonly type="text" id="contr" name="ContractName" class="items_history no-show">
                     </div>
-                    <div class="col-sm-4">
-                        <p id = "LRN" class="items_history"></p>
+                    <div class="col-sm-3">
+                        <input readonly type="text" id = "LRN" name="LineRefName" class="items_history no-show">
                     </div>
-                    <div class="col-sm-3 al3">
-                        <p id = "Dsc" class="items_history"></p>
+                    <div class="col-sm-5 al3">
+                        <input readonly type="text" id = "Dsc" name="DescriptionName" class="items_history no-show">
                     </div>
+
                     <div class="col-sm-1 al4" text-align="right">
                         <button type="button" class="close al2" data-dismiss="modal">&times;</button>
                     </div>
@@ -154,7 +161,7 @@
             </div>
 
             <div id="showwhenstart" style="display:none;">
-            <p>Current activity '<b id="ActStatusJQ"></b>' needs to be completed.</p>
+            <p style="margin-bottom:0px">Current activity '<b id="ActStatusJQ"></b>' needs to be completed.</p>
             </div>
 
             <div id="showwhencomplete" class="container" style="display:none;">
@@ -163,13 +170,13 @@
                     <p>Previous activity was '<b id="ActStatus"></b>'. Select a new activity to start:</p>
                     </div>
             {% for j in base_activities_data %}
-                    <div class="col-sm-6">
-                        {% if j.Activity != "Cancelled" %}
+                    <div class="col-sm-4">
+                        {% if j.isCancelled %}
                         <span style="height:40px; margin-bottom:10px; padding:10px;">{{  loop.index  }}</span>
-                        <input onclick="showDiv()" type="submit" class="btn btn-warning no-show" style="border:1px solid #{{  j.BgColor  }} !important; width:80%; height:40px; !important; font-size:14px; background-color:#{{  j.BgColor  }} !important;  font-weight: bold;" name="UpdateStatus" value="{{  j.Activity  }}">
+                        <input onclick="showDiv()" type="submit" class="btn btn-warning no-show" style="border:1px solid red !important; color: red !important; font-size:12px; background-color:white !important;  font-weight: bold;" name="UpdateStatus" value="{{  j.Activity  }}">
                         {% else %}
                         <span style="height:40px; margin-bottom:10px; padding:10px;">{{  loop.index  }}</span>
-                        <input onclick="showDiv()" type="submit" class="btn btn-warning no-show" style="border:1px solid red !important; color: red !important; width:80%; height:40px; !important; font-size:14px; background-color:white !important;  font-weight: bold;" name="UpdateStatus" value="{{  j.Activity  }}">
+                        <input onclick="showDiv()" type="submit" class="btn btn-warning no-show" style="border:1px solid #{{  j.BgColor  }} !important; font-size:10px; background-color:#{{  j.BgColor  }} !important;  font-weight: bold;" name="UpdateStatus" value="{{  j.Activity  }}">
                         {% endif %}
                     </div>
             {% endfor %}
@@ -209,9 +216,9 @@ $('#orderModal').on('show.bs.modal', function (event) {
     modal.find('#CIIE').val(ConID);
     modal.find('#CIIS').val(ASID);
     modal.find('#CIIA').val(ActEnd);
-    modal.find('#contr').text(c);
-    modal.find('#LRN').text(lrn);
-    modal.find('#Dsc').text(dscn);
+    modal.find('#contr').val(c);
+    modal.find('#LRN').val(lrn);
+    modal.find('#Dsc').val(dscn);
     modal.find('#ActStatusJQ').text(stat);
     modal.find('#ActStatus').text(stat);
 

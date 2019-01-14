@@ -41,7 +41,7 @@ def contract_data(file_name, orgid, contractid, userid):
     for i in pos:
         cnt = 1
         for a in range(int(sheet_1.cell(row=i, column=3).value)):
-            Extracted_Data['Items'][ans + a].append(str(sheet_1.cell(row=i, column=1).value) + "-" + str(cnt).replace(u'\xa0', u' '))
+            Extracted_Data['Items'][ans + a].append(str(sheet_1.cell(row=i, column=1).value) + "_" + str(cnt).replace(u'\xa0', u' '))
             Extracted_Data['Items'][ans + a].append(str(sheet_1.cell(row=i, column=2).value).replace(u'\xa0', u' '))
             cnt += 1
             for cols in range(3, N_Columns+1):

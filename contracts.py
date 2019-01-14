@@ -25,11 +25,13 @@ def allowed_file(filename):
 def worker(org_name, user_id):
     if user_id == session["UserId"]:
         #rs = '{timestamp} -- request started'.format(timestamp=datetime.utcnow().isoformat())
+        Confirmation = "Hello"
 
         fast_assign = db.engine.execute("""
                                         Select
-                                        i.ContractItemId, i.ActivityStatusId, i.LineReferenceNumber, i.Description, i.AssignedUserId,
-                                        c.Description  as 'Contract', c.ContractReference, c.DueDate, a.Status, a.isActivityEnd
+                                        i.ContractItemId, i.ActivityStatusId, i.LineReferenceNumber, i.Description,
+                                        i.AssignedUserId, c.Description  as 'Contract', c.ContractReference,
+                                        c.DueDate, a.Status, a.isActivityEnd, a.isCancelled
                                         from ContractItems i
                                         join Contracts c on
                                         c.ContractId = i.ContractId
@@ -42,7 +44,7 @@ def worker(org_name, user_id):
 
         base_activities_data = db.engine.execute("""
                                                  select distinct
-                                                 a.OrgId, a.ActivityId, a.Activity, s.BgColor
+                                                 a.OrgId, a.ActivityId, a.Activity, s.BgColor, s.isCancelled
                                                  from Activities a
                                                  left join ActivityStatuses s on
                                                  s.ActivityId = a.ActivityId
@@ -60,7 +62,12 @@ def worker(org_name, user_id):
                                   """.format(int(request.form["CIIS"]) + 1, request.form["CIIE"]))
 
                 db.session.commit()
-                return redirect(url_for('contracts_file.worker', org_name=session["OrgName"], user_id=session["UserId"]))
+
+                Con_Name = request.form["ContractName"]
+                LR_Name = request.form["LineRefName"]
+
+                Confirmation = "Contract: " + str(Con_Name) + " Reference: " + str(LR_Name) + " Status: Completed"
+                return redirect(url_for('contracts_file.worker', org_name=session["OrgName"], user_id=session["UserId"], Confirmation=Confirmation))
             elif request.form["UpdateStatus"] == "Cancelled":
 
                 db.engine.execute("""
@@ -70,7 +77,12 @@ def worker(org_name, user_id):
                                   """.format(request.form["CIIE"]))
 
                 db.session.commit()
-                return redirect(url_for('contracts_file.worker', org_name=session["OrgName"], user_id=session["UserId"]))
+
+                Con_Name = request.form["ContractName"]
+                LR_Name = request.form["LineRefName"]
+
+                Confirmation = "Contract: " + str(Con_Name) + " Reference: " + str(LR_Name) + " Status: Cancelled"
+                return redirect(url_for('contracts_file.worker', org_name=session["OrgName"], user_id=session["UserId"], Confirmation=Confirmation))
             elif request.form["UpdateStatus"] != "Complete Activity" or request.form["UpdateStatus"] != "Cancelled":
 
                 New_AI = db.engine.execute("""
@@ -89,8 +101,13 @@ def worker(org_name, user_id):
                                   """.format(New_AI[0], session["UserId"], request.form["CIIE"]))
 
                 db.session.commit()
-                return redirect(url_for('contracts_file.worker', org_name=session["OrgName"], user_id=session["UserId"]))
-        return render_template('Workers.html', fast_assign=fast_assign, user_id=user_id, base_activities_data=base_activities_data)
+
+                Con_Name = request.form["ContractName"]
+                LR_Name = request.form["LineRefName"]
+
+                Confirmation = "Contract: " + str(Con_Name) + " Reference: " + str(LR_Name) + " Status: " + str(request.form["UpdateStatus"]) + " started"
+                return redirect(url_for('contracts_file.worker', org_name=session["OrgName"], user_id=session["UserId"], Confirmation=Confirmation))
+        return render_template('Workers.html', fast_assign=fast_assign, user_id=user_id, base_activities_data=base_activities_data, Confirmation=Confirmation)
     else:
         error = 'You do not have authorisation to view this page'
         return render_template('Workers.html', Error=error)
