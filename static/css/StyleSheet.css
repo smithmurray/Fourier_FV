@@ -32,11 +32,10 @@
     text-align: center; !important;
 }
 
-.clickable-row:hover {
-
-    outline: 1px solid #122854;
-    color:#122854;
+.clickable-row {
+    pointer:cursor
 }
+
 .clickable-row:hover {
     pointer:cursor
     outline: 1px solid #122854;
@@ -56,13 +55,16 @@
 
 }
 
+html {
+    height:100%;
+}
+
 body {
       font: 12px Montserrat, sans-serif;
       line-height: 1.2;
       color: black;  /* #f5f6f7 */
       width: 100%;
-      height: 100%;
-      padding-bottom:10px;
+      min-height: 100%;
   }
 
 .al1 {
@@ -185,6 +187,8 @@ a:hover, .change:hover {
     line-height:1.5;
 }
 
+
+
 label {
    cursor: pointer;
    font: 14px Montserrat, sans-serif;
@@ -193,43 +197,39 @@ label {
 }
 
 .login {
-    border: 2px solid #122854;
-    color: #122854;
+    border: 2px solid #808080;
+    color: #808080;
     font-size: 48px;
     width:80px;
     height:80px;
     border-radius:25px;
     text-align: center;
-    opacity:0.4;
 }
 
 .login:focus {
-    border: 2px solid #122854;
+    border: 2px solid #808080;
 
     font-style: arial;
     font-size: 48px;
     outline: none;
     box-shadow:none;
     text-align: center;
-    opacity:0.7;
 }
 
 .ologin {
-    border: 2px solid #122854;
-    color: #122854;
+    border: 2px solid #808080;
+    color: #808080;
     border-radius:25px;
     text-align: center;
-    opacity:0.4;
 }
 
 .ologin:focus {
-    border: 2px solid #122854;
-    color: #122854;
+    border: 2px solid #808080;
+    color: #808080;
     font-style: arial;
     outline: none;
     box-shadow:none;
     text-align: center;
-    opacity:0.7;
 }
 
 .qlogin {

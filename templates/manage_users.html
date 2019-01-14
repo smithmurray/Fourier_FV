@@ -2,13 +2,7 @@
 
 {% block title %}Flow Vis{% endblock %}
 
-
-
 {% block href %}"{{  url_for('users_file.dashboard', org_name=session['OrgName'])  }}"{% endblock %}
-
-{% block navbody %}
-    <a class="text-white" href="/Logout">Logout</a>
-{% endblock %}
 
 {% block body %}
 {% if Error|length > 1 %}

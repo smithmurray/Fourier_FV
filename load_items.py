@@ -46,9 +46,9 @@ def contract_data(file_name, orgid, contractid, userid):
             cnt += 1
             for cols in range(3, N_Columns+1):
                 try:
-                    Extracted_Data['Items'][ans + a].append(str(round(sheet_1.cell(row=i, column=cols).value, 2)).replace(u'\xa0', u' '))
+                    Extracted_Data['Items'][ans + a].append(str(round(sheet_1.cell(row=i, column=cols).value, 2)).replace(u'\xa0', u'').replace('R', ''))
                 except TypeError:
-                    Extracted_Data['Items'][ans + a].append(str(sheet_1.cell(row=i, column=cols).value).replace(u'\xa0', u' '))
+                    Extracted_Data['Items'][ans + a].append(str(sheet_1.cell(row=i, column=cols).value).replace(u'\xa0', u'').replace('R', ''))
         ans += (1 + a)
 
 
@@ -57,9 +57,9 @@ def contract_data(file_name, orgid, contractid, userid):
         Extracted_Data['Items'][ans].append(str(sheet_1.cell(row=i, column=2).value).replace(u'\xa0', u' '))
         for cols in range(3, N_Columns+1):
             try:
-                Extracted_Data['Items'][ans].append(str(round(sheet_1.cell(row=i, column=cols).value, 2)).replace(u'\xa0', u' '))
+                Extracted_Data['Items'][ans].append(str(round(sheet_1.cell(row=i, column=cols).value, 2)).replace(u'\xa0', u'').replace('R', ''))
             except TypeError:
-                Extracted_Data['Items'][ans].append(str(sheet_1.cell(row=i, column=cols).value).replace(u'\xa0', u' '))
+                Extracted_Data['Items'][ans].append(str(sheet_1.cell(row=i, column=cols).value).replace(u'\xa0', u'').replace('R', ''))
         ans += 1
 
 

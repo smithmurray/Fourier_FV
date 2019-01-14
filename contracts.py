@@ -37,6 +37,7 @@ def worker(org_name, user_id):
                                         a.StatusId=i.ActivityStatusId
                                         where i.OrgId = {} and
                                         DueDate >= DATEADD(DAY, -90, GETDATE())
+                                        order by c.Description asc
                                         """.format(session["OrgId"])).fetchall()
 
         base_activities_data = db.engine.execute("""
@@ -45,8 +46,8 @@ def worker(org_name, user_id):
                                                  from Activities a
                                                  left join ActivityStatuses s on
                                                  s.ActivityId = a.ActivityId
-                                                 where a.Level = 2
-                                                 """).fetchall()
+                                                 where a.Level = 2 and a.OrgId = {}
+                                                 """.format(session["OrgId"])).fetchall()
 
         #ss= '{timestamp} -- request ended'.format(timestamp=datetime.utcnow().isoformat())
         if request.method == "POST":
@@ -108,8 +109,8 @@ def manage_contracts(org_name):
                                                   from Users u
                                                   join UserRoles r on
                                                   r.UserId=u.UserId
-                                                  where r.RoleId>1 and u.IsActive = 1
-                                                  """).fetchall()
+                                                  where r.RoleId>1 and u.IsActive = 1 and OrgId = {}
+                                                  """.format(session["OrgId"])).fetchall()
 
             activities_data = db.engine.execute("""
                                                 Select
@@ -117,8 +118,8 @@ def manage_contracts(org_name):
                                                 from ActivityStatuses a
                                                 left join Activities s on
                                                 a.ActivityId=s.ActivityId
-                                                where a.OrgId = 1 and s.Level = 1
-                                                """).fetchall()
+                                                where a.OrgId = {} and s.Level = 1
+                                                """.format(session["OrgId"])).fetchall()
 
             #contract_id = db.engine.execute("Select c.OrgId, c.ContractId, c.ContractReference, c.Description, c.DueDate, c.AssignedUserId, c.ContactPerson,c.Notes,c.Value, c.ActivityStatusId, u.UserName, a.StatusId, a.Status from Contracts c left join Users u on u.UserId = c.AssignedUserId left join ActivityStatuses a on a.StatusId = c.ActivityStatusId where c.OrgId = {} order by c.DueDate asc".format(session["OrgId"])).fetchall()
 
@@ -204,15 +205,15 @@ def manage_contract_items(org_name, contract_name):
                                                 a.OrgId, a.StatusId, a.Status, a.SequenceNumber, a.ActivityId, s.Level
                                                 from ActivityStatuses a
                                                 left join Activities s on
-                                                a.ActivityId=s.ActivityId where a.OrgId = 1 and s.Level = 2
-                                                """).fetchall()
+                                                a.ActivityId=s.ActivityId where a.OrgId = {} and s.Level = 2
+                                                """.format(session["OrgId"])).fetchall()
 
             contract_data = db.engine.execute("""
                                               SELECT
                                               ContractId, Description, DueDate, ContractReference
                                               FROM Contracts
-                                              where Description = '{}'
-                                              """.format(contract_name)).first()
+                                              where Description = '{}' and OrgId = {}
+                                              """.format(contract_name, session["OrgId"])).first()
 
             #contract_ref = db.engine.execute("""SELECT ContractReference FROM Contracts where Description = '{}'".format(contract_name)).first()
             #item_data = db.engine.execute("Select c.OrgId, c.ContractId, c.ContractItemId, c.LineReferenceNumber, c.Description, c.Value, c.AssignedUserId, c.ActivityStatusId, u.UserName, a.Status from ContractItems c left join Users u on u.UserId = c.AssignedUserId left join ActivityStatuses a on a.StatusId = c.ActivityStatusId where ContractId = {} and c.OrgId = {}".format(int(contract_data[0]), session["OrgId"])).fetchall()

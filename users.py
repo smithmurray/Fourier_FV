@@ -13,24 +13,29 @@ app.jinja_env.add_extension('jinja2.ext.loopcontrols')
 
 @users_file.route('/', methods=["POST", "GET"])
 def login_org():
-    if request.method == "POST":
-        try:
-            org_data = db.engine.execute("SELECT * FROM Organisations where IsActive = 1 and Email = '{}'".format(request.form["OrgEmail"])).first()
-            if org_data[3] == request.form["OrgPswd"]:
-                session['OrgId'] = org_data[0]
-                session['OrgName'] = org_data[1].replace(" ", "_")
-                return redirect(url_for('users_file.login', org_name=session["OrgName"]))
-            else:
-                error = 'Your password is incorrect'
+    if session.get('OrgId'):
+        return redirect(url_for('users_file.login', org_name=session["OrgName"]))
+    else:
+        if request.method == "POST":
+            try:
+                org_data = db.engine.execute("SELECT * FROM Organisations where IsActive = 1 and Email = '{}'".format(request.form["OrgEmail"])).first()
+                if org_data[3] == request.form["OrgPswd"]:
+                    session['OrgId'] = org_data[0]
+                    session['OrgName'] = org_data[1].replace(" ", "_")
+                    return redirect(url_for('users_file.login', org_name=session["OrgName"]))
+                else:
+                    error = 'Your password is incorrect'
+                    return render_template('login_org.html', Error=error)
+            except:
+                error = 'Your email is incorrect'
                 return render_template('login_org.html', Error=error)
-        except:
-            error = 'Your email is incorrect'
-            return render_template('login_org.html', Error=error)
-    return render_template('login_org.html')
+        return render_template('login_org.html')
 
 @users_file.route('/<string:org_name>/Login', methods=['GET', 'POST'])
 def login(org_name):
     if session.get('OrgId'):
+        if session.get('UserId') and session["RoleId"] > 1:
+            return redirect(url_for('users_file.dashboard', org_name=session["OrgName"]))
         sesh = db.engine.execute("Select * from UserRoles").fetchall()
         if request.method == "POST":
             try:

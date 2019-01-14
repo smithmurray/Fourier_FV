@@ -2,8 +2,6 @@
 
 {% block title %}Flow Vis{% endblock %}
 
-
-
 {% block href %}{{  url_for('users_file.dashboard', org_name=session["OrgName"])  }}{% endblock %}
 
 {% block css %}
@@ -15,10 +13,6 @@ td a:hover {
 }
 
 </style>
-{% endblock %}
-
-{% block navbody %}
-    <a class="text-white" href="/Logout">Logout</a>
 {% endblock %}
 
 {% block body %}
@@ -146,7 +140,7 @@ td a:hover {
               {% endfor %}
             </select>
             <label class="text-center">Due Date:</label>
-            <input min="1899-01-01" style="text-align:left;" class="form-control qlogin" type="date" required name="CDate" id="CDate"/>
+            <input min="1899-01-01" max="9999-12-31" style="text-align:left;" class="form-control qlogin" type="date" required name="CDate" id="CDate"/>
             <label class="text-center">Notes:</label>
             <textarea style="text-align:left; height:100px;" class="form-control qlogin" name="CNotes" id="CNotes"></textarea>
             </center>
@@ -198,7 +192,7 @@ td a:hover {
               {% endfor %}
             </select>
             <label class="text-center">Due Date:</label>
-            <input min="1899-01-01" style="text-align:left;" class="form-control qlogin" type="date" value="" required name="ECDate" id="ECDate"/>
+            <input min="1899-01-01" max="9999-12-31" style="text-align:left;" class="form-control qlogin" type="date" value="" required name="ECDate" id="ECDate"/>
             <label class="text-center">Notes:</label>
             <textarea style="text-align:left; height:100px;" class="form-control qlogin" name="ECNotes" id="ECNotes"></textarea>
             </center>
